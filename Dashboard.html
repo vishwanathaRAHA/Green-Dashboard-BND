@@ -679,23 +679,24 @@
         .raha-center .raha-sub { font-size: 0.5rem; font-weight: 400; opacity: 0.8; letter-spacing: 1px; }
 
         .sense-node {
-            position: absolute;
-            width: 76px;
-            height: 76px;
-            border-radius: 50%;
-            background: rgba(240, 250, 230, 0.95);
-            border: 2px solid rgba(170, 215, 155, 0.55);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-            box-shadow: 0 4px 16px rgba(120, 170, 110, 0.15);
-            z-index: 2;
-            margin-left: -38px;
-            margin-top: -38px;
-        } 
+    position: absolute;
+    width: 76px;
+    height: 76px;
+    border-radius: 50%;
+    background: rgba(240, 250, 230, 0.95);
+    border: 2px solid rgba(170, 215, 155, 0.55);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 4px 16px rgba(120, 170, 110, 0.15);
+    z-index: 2;
+    margin-left: -38px;
+    margin-top: -38px;
+    overflow: hidden; /* <--- ADD THIS LINE */
+}
         
                 .sense-node i {
             font-size: 1.3rem;
@@ -2628,15 +2629,15 @@
                 </div>
                 <div style="display:flex; gap:8px; margin-left:auto;">
                   <button class="filter-action-btn reset" onclick="resetFilters()">
-                          <i class="fas fa-redo"></i> Reset
-                      </button>
-                      <button class="filter-action-btn claims" onclick="showAllClaims()">
-                          <i class="fas fa-table"></i> View All Claims
-                      </button>
-                      <button class="filter-action-btn denied" onclick="showDeniedClaims()">
-                          <i class="fas fa-ban"></i> Denied <span id="deniedCountBadge" style="background:rgba(255,255,255,0.4); padding:0 6px; border-radius:10px;">0</span>
-                      </button>
-                </div>
+                  <i class="fas fa-redo"></i> Reset
+                  </button>
+                   <button class="filter-action-btn claims" onclick="showAllClaims()">
+                     <i class="fas fa-table"></i> View All Claims
+                 </button>
+                    <button class="filter-action-btn denied" onclick="showDeniedClaims()">
+                   <i class="fas fa-ban"></i> Denied <span id="deniedCountBadge">0</span>
+                            </button>
+                        </div>
             </div>
 
             <div class="filter-summary" id="filterSummary">
