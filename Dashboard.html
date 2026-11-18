@@ -703,7 +703,7 @@
             color: #3a8a4a;
             transition: color 0.3s;
         }
-<!-- part 2 -->
+
         .sense-node .sense-label {
             font-size: 0.35rem;
             font-weight: 700;
@@ -2163,7 +2163,7 @@
     </style>
 </head>
 
-<!-- part 3 -->
+
 
 
 
@@ -2388,7 +2388,7 @@
 
     </div>
 
-<!-- part 4 -->
+
 
 
     <!-- ================================================================
@@ -2628,16 +2628,16 @@
                     </div>
                 </div>
                 <div style="display:flex; gap:8px; margin-left:auto;">
-                  <button class="filter-action-btn reset" onclick="resetFilters()">
-                  <i class="fas fa-redo"></i> Reset
-                  </button>
-                   <button class="filter-action-btn claims" onclick="showAllClaims()">
-                     <i class="fas fa-table"></i> View All Claims
-                 </button>
-                    <button class="filter-action-btn denied" onclick="showDeniedClaims()">
-                   <i class="fas fa-ban"></i> Denied <span id="deniedCountBadge">0</span>
-                            </button>
-                        </div>
+    <button class="filter-action-btn reset" onclick="resetFilters()">
+        <i class="fas fa-redo"></i> Reset
+    </button>
+    <button class="filter-action-btn claims" onclick="showAllClaims()">
+        <i class="fas fa-table"></i> View All Claims
+    </button>
+    <button class="filter-action-btn denied" onclick="showDeniedClaims()">
+        <i class="fas fa-ban"></i> Denied <span id="deniedCountBadge" style="background:rgba(255,255,255,0.4); padding:0 6px; border-radius:10px;">0</span>
+    </button>
+</div>
             </div>
 
             <div class="filter-summary" id="filterSummary">
@@ -2841,7 +2841,7 @@
 
     </div>
 
-<!-- part 5 -->
+
 
     <div class="footer-note">
         🌿 Recommendations driven by claims intelligence 🌿
@@ -3668,7 +3668,7 @@ function buildHubSystems() {
     console.log('Hub organ systems (cost-driver driven):', hubSystems.map(s => s.key + '(' + s.count + ')').join(', '));
 }
 
-// <! part 6>
+
 
 // ================================================================
 // 9. SENSE HUB (renders hubSystems — the top 5 organ systems)
@@ -4602,7 +4602,7 @@ function updateCumulativeSummary() {
 }
 
 // ========== END OF PART 6a — PART 6b CONTINUES IMMEDIATELY BELOW ==========
-// part 7
+
 
 // ================================================================
 // SORT STATE (per table)
@@ -5507,7 +5507,7 @@ function loadMoreDrill() {
         btn.style.display = end >= sortedRows.length ? 'none' : 'inline-block';
     }
 }
-// part 8
+
 
 // ================================================================
 // 31. ALL CLAIMS
