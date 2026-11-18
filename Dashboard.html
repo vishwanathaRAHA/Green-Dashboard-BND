@@ -704,18 +704,18 @@
         }
 <!-- part 2 -->
         .sense-node .sense-label {
-            font-size: 0.4rem;
+            font-size: 0.35rem;
             font-weight: 700;
             color: #2d5a2d;
             text-transform: uppercase;
-            letter-spacing: 0.2px;
+            letter-spacing: 0.1px;
             margin-top: 1px;
             opacity: 0.85;
             text-align: center;
-            padding: 0;
-            line-height: 1.05;
+            padding: 0 2px;
+            line-height: 1.0;
             word-break: break-all;
-            max-width: 60px;
+            max-width: 50px;
         }
 
         .sense-node .node-count {
@@ -1291,10 +1291,10 @@
 
         .filter-grid.premium-row { grid-template-columns: 1fr; margin-bottom: 10px; }
 
-        
-        .filter-group { display: flex; flex-direction: column; min-width: 0; }
+        .filter-group { display: flex; flex-direction: column; }
+        /*.filter-group { display: flex; flex-direction: column; min-width: 0; } */
         /* JS will add this class dynamically to lift the open dropdown above the Reset button */
-        .filter-group.is-open { position: relative; z-index: 50; }
+        /*.filter-group.is-open { position: relative; z-index: 50; } */
 
         .filter-label {
             font-size: 0.6rem;
@@ -2636,12 +2636,15 @@
                     </div>
                 </div>
                 <div style="display:flex; gap:8px; margin-left:auto;">
-                    <button class="filter-action-btn claims" onclick="showAllClaims()">
-                        <i class="fas fa-table"></i> View All Claims
-                    </button>
-                    <button class="filter-action-btn denied" onclick="showDeniedClaims()">
-                        <i class="fas fa-ban"></i> Denied <span id="deniedCountBadge" style="background:rgba(255,255,255,0.4); padding:0 6px; border-radius:10px;">0</span>
-                    </button>
+                  <button class="filter-action-btn reset" onclick="resetFilters()">
+                          <i class="fas fa-redo"></i> Reset
+                      </button>
+                      <button class="filter-action-btn claims" onclick="showAllClaims()">
+                          <i class="fas fa-table"></i> View All Claims
+                      </button>
+                      <button class="filter-action-btn denied" onclick="showDeniedClaims()">
+                          <i class="fas fa-ban"></i> Denied <span id="deniedCountBadge" style="background:rgba(255,255,255,0.4); padding:0 6px; border-radius:10px;">0</span>
+                      </button>
                 </div>
             </div>
 
