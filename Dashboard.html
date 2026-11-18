@@ -1291,10 +1291,8 @@
 
         .filter-grid.premium-row { grid-template-columns: 1fr; margin-bottom: 10px; }
 
-        .filter-group { display: flex; flex-direction: column; }
-        /*.filter-group { display: flex; flex-direction: column; min-width: 0; } */
-        /* JS will add this class dynamically to lift the open dropdown above the Reset button */
-        /*.filter-group.is-open { position: relative; z-index: 50; } */
+        .filter-group { display: flex; flex-direction: column; min-width: 0; }
+        .filter-group.is-open { position: relative; z-index: 50; }
 
         .filter-label {
             font-size: 0.6rem;
@@ -2618,14 +2616,7 @@
                     <label class="filter-label"><i class="fas fa-search me-1"></i>&nbsp;Claim ID</label>
                     <input type="text" id="claimIdSearch" placeholder="Search..." class="dropdown-btn" style="padding:6px 10px;font-size:0.7rem;">
                 </div>
-                <div class="filter-group">
-                    <label class="filter-label">&nbsp;</label>
-                    <div class="filter-actions">
-                        <button class="filter-action-btn reset" onclick="resetFilters()">
-                            <i class="fas fa-redo"></i> Reset
-                        </button>
-                    </div>
-                </div>
+                
             </div>
 
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-top:6px;">
