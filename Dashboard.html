@@ -704,17 +704,18 @@
         }
 <!-- part 2 -->
         .sense-node .sense-label {
-            font-size: 0.45rem;
+            font-size: 0.4rem;
             font-weight: 700;
             color: #2d5a2d;
             text-transform: uppercase;
-            letter-spacing: 0.3px;
-            margin-top: 2px;
+            letter-spacing: 0.2px;
+            margin-top: 1px;
             opacity: 0.85;
             text-align: center;
-            padding: 0 2px;
-            line-height: 1.1;
-            word-break: break-word;
+            padding: 0;
+            line-height: 1.05;
+            word-break: break-all;
+            max-width: 60px;
         }
 
         .sense-node .node-count {
@@ -1292,7 +1293,8 @@
 
         
         .filter-group { display: flex; flex-direction: column; min-width: 0; }
-        .filter-group:has(.dropdown-content.show) { position: relative; z-index: 50; }
+        /* JS will add this class dynamically to lift the open dropdown above the Reset button */
+        .filter-group.is-open { position: relative; z-index: 50; }
 
         .filter-label {
             font-size: 0.6rem;
@@ -3982,7 +3984,11 @@ function initializeFilters() {
 
     document.addEventListener('click', function(e) {
         if (!e.target.closest('.custom-dropdown')) {
-            document.querySelectorAll('.dropdown-content').forEach(d => d.classList.remove('show'));
+            document.querySelectorAll('.dropdown-content').forEach(d => {
+                d.classList.remove('show');
+                const parent = d.closest('.filter-group');
+                if (parent) parent.classList.remove('is-open');
+            });
         }
     });
 }
@@ -4211,10 +4217,24 @@ function toggleGenderFilter(value, isChecked) {
 
 function toggleDropdown(dropdownId) {
     document.querySelectorAll('.dropdown-content').forEach(d => {
-        if (d.id !== dropdownId + 'Content') d.classList.remove('show');
+        if (d.id !== dropdownId + 'Content') {
+            d.classList.remove('show');
+            const parent = d.closest('.filter-group');
+            if (parent) parent.classList.remove('is-open');
+        }
     });
     const content = document.getElementById(dropdownId + 'Content');
-    if (content) content.classList.toggle('show');
+    if (content) {
+        const isNowOpen = content.classList.toggle('show');
+        const parent = content.closest('.filter-group');
+        if (parent) {
+            if (isNowOpen) {
+                parent.classList.add('is-open');
+            } else {
+                parent.classList.remove('is-open');
+            }
+        }
+    }
 }
 
 // ================================================================
