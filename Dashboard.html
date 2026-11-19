@@ -1280,7 +1280,7 @@
             border: 1px solid rgba(180, 220, 170, 0.35);
             box-shadow: inset 0 0 0 1px rgba(255, 255, 240, 0.4);
             position: relative;
-            z-index: 100;
+            z-index: 1000;
         }
 
         .filter-grid {
@@ -1293,7 +1293,7 @@
         .filter-grid.premium-row { grid-template-columns: 1fr; margin-bottom: 10px; }
 
         .filter-group { display: flex; flex-direction: column; min-width: 0; }
-        .filter-group.is-open { position: relative; z-index: 50; }
+        .filter-group.is-open { position: relative; z-index: 1001; }
 
         .filter-label {
             font-size: 0.6rem;
@@ -1349,7 +1349,7 @@
             margin-top: 4px;
             max-height: 240px;
             overflow-y: auto;
-            z-index: 999;
+            z-index: 1002;
             display: none;
             box-shadow: 0 8px 20px rgba(120, 170, 110, 0.18);
         }
@@ -2542,7 +2542,7 @@
                     </div>
                     <div id="claimTypeTags" class="selected-tags"></div>
                 </div>
-                <div class="filter-group" id="ageFilterGroup" style="display:none;">
+                <div class="filter-group" id="ageFilterGroup" style="display:flex;">
                     <label class="filter-label"><i class="fas fa-user me-1"></i>&nbsp;Age</label>
                     <div id="ageDropdown" class="custom-dropdown">
                         <button class="dropdown-btn" onclick="toggleDropdown('ageDropdown')">
