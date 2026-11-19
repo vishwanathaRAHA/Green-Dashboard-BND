@@ -2542,7 +2542,7 @@
                     </div>
                     <div id="claimTypeTags" class="selected-tags"></div>
                 </div>
-                <div class="filter-group" id="ageFilterGroup" style="display:flex;">
+                <div class="filter-group" id="ageFilterGroup" style="display:flex !important;">
                     <label class="filter-label"><i class="fas fa-user me-1"></i>&nbsp;Age</label>
                     <div id="ageDropdown" class="custom-dropdown">
                         <button class="dropdown-btn" onclick="toggleDropdown('ageDropdown')">
@@ -3214,7 +3214,8 @@ function getRowAge(row) {
 function getAgeBand(row) {
     const age = getRowAge(row);
     if (age === null) return null;
-    for (const b of AGE_BANDS) if (age >= b.min && age <= b.max) return b.key;
+    const a = Math.floor(age);
+    for (const b of AGE_BANDS) if (a >= b.min && a <= b.max) return b.key;
     return null;
 }
 function getRowGender(row) { return normalizeGender(getValue(row, 'gender')); }
@@ -3940,7 +3941,7 @@ function initializeFilters() {
     availableYears = [...yearSet].sort();
     if (ageDataAvailable) {
         const ageSet = new Set();
-        rawData.forEach(r => { const b = getAgeBand(r); if (b) ageSet.add(b.key); });
+        rawData.forEach(r => { const b = getAgeBand(r); if (b) ageSet.add(b); });
         availableAgeBands = AGE_BANDS.filter(b => ageSet.has(b.key));
         populateAgeOptions();
     }
