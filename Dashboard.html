@@ -425,6 +425,17 @@
 
         .policy-half li:last-child { border-bottom: none; }
 
+        /* Cost driver names: show in full; add "…" only when the row runs out of space */
+        .policy-half li { gap: 12px; }
+        .policy-half li .cd-label {
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .policy-half li .badge-stat { flex-shrink: 0; }
+
         .badge-stat {
             background: rgba(180, 210, 165, 0.35);
             padding: 2px 16px;
@@ -650,7 +661,7 @@
             position: relative;
             width: 340px;
             height: 340px;
-            margin: 8px auto;
+            margin: 8px auto 40px; /* extra bottom space for the labels under the lowest nodes */
         }
 
         .raha-center {
@@ -670,7 +681,7 @@
             font-size: 1rem;
             letter-spacing: 1px;
             box-shadow: 0 8px 32px rgba(60, 140, 70, 0.35);
-            z-index: 3;
+            z-index: 1;
             border: 4px solid rgba(240, 250, 230, 0.85);
         }
 
@@ -695,7 +706,7 @@
     z-index: 2;
     margin-left: -38px;
     margin-top: -38px;
-    overflow: hidden; /* <--- ADD THIS LINE */
+    overflow: visible; /* lets the name label sit below the circle */
 }
         
                 .sense-node i {
@@ -705,22 +716,25 @@
         }
 
         .sense-node .sense-label {
-            font-size: 0.35rem;
-            font-weight: 700;
-            color: #2d5a2d;
-            text-transform: uppercase;
-            letter-spacing: 0.1px;
-            margin-top: 1px;
-            opacity: 0.85;
+            position: absolute;
+            top: calc(100% + 6px);
+            left: 50%;
+            transform: translateX(-50%);
+            width: 110px;
             text-align: center;
-            padding: 0 2px;
-            line-height: 1.0;
-            word-break: break-all;
-            max-width: 50px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            line-height: 1.15;
+            color: #1f3f2a;
+            background: rgba(240, 250, 230, 0.92);
+            padding: 2px 8px;
+            border-radius: 10px;
+            pointer-events: none;
+            transition: background 0.3s, color 0.3s;
         }
 
         .sense-node .node-count {
-            font-size: 0.5rem;
+            font-size: 0.8rem;
             font-weight: 800;
             color: #2d7a3a;
             margin-top: 1px;
@@ -741,10 +755,14 @@
         }
 
         .sense-node.active i,
-        .sense-node.active .sense-label,
         .sense-node.active .node-count {
             color: white;
             opacity: 1;
+        }
+
+        .sense-node.active .sense-label {
+            background: #3a8a4a;
+            color: #fff;
         }
 
         .sense-detail {
@@ -2102,6 +2120,7 @@
             .wellness-layout { grid-template-columns: 1fr; }
             .sense-circle { width: 300px; height: 300px; }
             .sense-node { width: 64px; height: 64px; margin-left: -32px; margin-top: -32px; }
+            .sense-node .sense-label { width: 92px; font-size: 0.72rem; }
             .raha-center { width: 100px; height: 100px; }
             .filter-grid { grid-template-columns: repeat(3, 1fr); }
         }
@@ -2151,7 +2170,8 @@
             .sense-circle { width: 220px; height: 220px; }
             .sense-node { width: 48px; height: 48px; margin-left: -24px; margin-top: -24px; }
             .sense-node i { font-size: 0.95rem; }
-            .sense-node .sense-label { font-size: 0.4rem; }
+            .sense-node .sense-label { display: none; }
+            .sense-node.active .sense-label { display: block; width: 80px; font-size: 0.65rem; }
             .raha-center { width: 76px; height: 76px; }
             .monthly-feature .feature-month { font-size: 2.2rem; }
             .monthly-feature .feature-highlights { grid-template-columns: 1fr; }
@@ -3839,6 +3859,11 @@ function updatePage1Gauge() {
     else lblEl.textContent = '⚠️ Above target — review';
 }
 
+function escapeHtml(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
 function updateCostDrivers() {
     const list = document.getElementById('costDriversList');
     if (!list) return;
@@ -3862,7 +3887,7 @@ function updateCostDrivers() {
     if (top5.length === 0) { list.innerHTML = '<li style="justify-content:center; color:#94a3b8; padding-left:0; background:none;">No claims data</li>'; return; }
     list.innerHTML = top5.map(item => {
         const pct = total > 0 ? ((item.value / total) * 100).toFixed(1) : 0;
-        return '<li>' + (item.label.length > 38 ? item.label.substring(0, 35) + '...' : item.label) +
+        return '<li><span class="cd-label" title="' + escapeHtml(item.label) + '">' + escapeHtml(item.label) + '</span>' +
             '<span class="badge-stat">' + formatCurrencyShort(item.value) +
             '<span class="data-source">' + pct + '% · ' + item.type + '</span></span></li>';
     }).join('');
@@ -3881,7 +3906,7 @@ function updateSuggestions() {
     container.innerHTML = top3.map(([disease, amount]) => {
         const e = preventionContent[disease] || preventionContent[String(disease).trim()] || {};
         return '<div class="suggestion-item">' +
-            '<div class="sug-title">📌 ' + (disease.length > 40 ? disease.substring(0, 37) + '...' : disease) + ' · ' + formatCurrencyShort(amount) + '</div>' +
+            '<div class="sug-title">📌 ' + escapeHtml(disease) + ' · ' + formatCurrencyShort(amount) + '</div>' +
             '<div class="sug-block"><span class="sug-ico">🛡️</span><span><strong>Prevent:</strong> ' + (e.prevent || 'General wellness guidance.') + '</span></div>' +
             '<div class="sug-block"><span class="sug-ico">💊</span><span><strong>Manage:</strong> ' + (e.manage || 'Consult your healthcare provider.') + '</span></div></div>';
     }).join('');
