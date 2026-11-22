@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <base target="_top">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --success-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+        body { background: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; min-height: 100vh; padding: 20px; }
+        .back-btn { position: absolute; top: 20px; left: 20px; z-index: 100; }
+        .upload-zone { border: 3px dashed #cbd5e1; border-radius: 15px; background: white; padding: 60px 30px; text-align: center; cursor: pointer; transition: all 0.3s; }
+        .upload-zone:hover { border-color: #667eea; background: #f8fafc; transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .upload-zone.dragover { border-color: #764ba2; background: linear-gradient(135deg, rgba(102,126,234,0.05), rgba(118,75,162,0.05)); }
+        .upload-zone.has-file { border-color: #10b981; background: linear-gradient(135deg, rgba(16,185,129,0.05), rgba(5,150,105,0.05)); }
+        .file-preview { background: white; border-radius: 10px; padding: 20px; margin: 20px 0; border: 2px solid #e2e8f0; display: none; }
+        .progress-container { height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden; margin: 15px 0; display: none; }
+        .progress-bar { height: 100%; background: var(--primary-gradient); width: 0%; transition: width 0.3s; }
+        .btn-primary { background: var(--primary-gradient); border: none; padding: 12px 30px; font-weight: 600; }
+        .btn-primary:hover { background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%); transform: translateY(-1px); box-shadow: 0 5px 15px rgba(102,126,234,0.3); }
+        .btn-success { background: var(--success-gradient); border: none; }
+        .result-card { display: none; animation: slideUp 0.5s ease; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .loading-spinner { display: none; }
+        .step-indicator { display: flex; justify-content: center; margin-bottom: 40px; }
+        .step { display: flex; flex-direction: column; align-items: center; margin: 0 20px; opacity: 0.5; transition: opacity 0.3s; }
+        .step.active { opacity: 1; }
+        .step-number { width: 40px; height: 40px; border-radius: 50%; background: #e2e8f0; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-bottom: 8px; color: #64748b; }
+        .step.active .step-number { background: var(--primary-gradient); color: white; }
+        .step.completed .step-number { background: var(--success-gradient); color: white; }
+        .step.completed .step-number:after { content: '✓'; }
+        .step-label { font-size: 12px; color: #64748b; font-weight: 500; }
+        .client-id-container { background: linear-gradient(135deg, rgba(59,130,246,0.05), rgba(37,99,235,0.05)); border-radius: 10px; padding: 20px; border: 2px solid #3b82f6; margin-bottom: 20px; }
+        .date-input-container { background: linear-gradient(135deg, rgba(59,130,246,0.05), rgba(37,99,235,0.05)); border-radius: 10px; padding: 20px; border: 2px solid #3b82f6; margin-bottom: 20px; }
+        .policy-container { background: linear-gradient(135deg, rgba(245,158,11,0.05), rgba(217,119,6,0.05)); border-radius: 10px; padding: 20px; border: 2px solid #fbbf24; margin-bottom: 20px; }
+        .policy-block { background: white; border-radius: 12px; padding: 20px; border: 1px solid #e2e8f0; margin-bottom: 16px; position: relative; }
+        .policy-block-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 2px dashed #e2e8f0; }
+        .policy-block-header h6 { font-weight: 700; color: #92400e; margin: 0; font-size: 14px; display: flex; align-items: center; gap: 8px; }
+        .remove-policy { color: #ef4444; cursor: pointer; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; }
+        .remove-policy:hover { background: #fee2e2; }
+        .add-policy-btn { border: 2px dashed #f59e0b; background: white; color: #d97706; padding: 12px; border-radius: 8px; width: 100%; cursor: pointer; transition: all 0.3s; font-weight: 700; font-size: 14px; }
+        .add-policy-btn:hover { background: #fef3c7; transform: translateY(-2px); }
+        .policy-subsection { background: rgba(139,92,246,0.05); border: 1px solid rgba(139,92,246,0.2); border-radius: 10px; padding: 14px; margin-top: 14px; }
+        .policy-subsection-title { font-size: 12px; font-weight: 700; color: #6d28d9; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .policy-subsection .wallet-bracket-row { display: flex; gap: 10px; align-items: flex-end; margin-bottom: 8px; padding: 8px; background: white; border-radius: 8px; border: 1px solid #e2e8f0; }
+        .policy-subsection .wallet-bracket-row .bracket-input { flex: 1; }
+        .policy-subsection .wallet-bracket-row .remove-bracket { color: #ef4444; cursor: pointer; padding: 6px; border-radius: 5px; }
+        .policy-subsection .wallet-bracket-row .remove-bracket:hover { background: #fee2e2; }
+        .add-bracket-btn { border: 1px dashed #8b5cf6; background: white; color: #8b5cf6; padding: 6px 12px; border-radius: 6px; width: 100%; cursor: pointer; font-size: 12px; font-weight: 600; margin-top: 6px; }
+        .add-bracket-btn:hover { background: #f5f3ff; }
+        .lives-relation-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .lives-relation-grid .relation-field { display: flex; flex-direction: column; }
+        .lives-relation-grid .relation-field label { font-size: 10px; font-weight: 700; color: #4d6b4d; text-transform: uppercase; margin-bottom: 3px; }
+        .lives-relation-grid .relation-field input { padding: 6px 10px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 12px; }
+        .no-claims-section { background: linear-gradient(135deg, rgba(16,185,129,0.08), rgba(5,150,105,0.08)); border-radius: 10px; padding: 20px; border: 2px solid #10b981; margin-bottom: 20px; }
+        .toggle-row { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 12px; }
+        .toggle-card { flex: 1; min-width: 200px; background: white; border-radius: 12px; padding: 16px; border: 2px solid #e2e8f0; cursor: pointer; transition: all 0.2s; }
+        .toggle-card:hover { border-color: #cbd5e1; }
+        .toggle-card.active-yes { border-color: #10b981; background: #f0fdf4; }
+        .toggle-card.active-no { border-color: #ef4444; background: #fef2f2; }
+        .toggle-card .toggle-title { font-weight: 700; color: #1e293b; font-size: 14px; margin-bottom: 4px; }
+        .toggle-card .toggle-desc { font-size: 11px; color: #64748b; line-height: 1.4; }
+        .toggle-card .toggle-indicator { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; color: #64748b; margin-top: 8px; }
+        .toggle-card.active-yes .toggle-indicator { color: #059669; }
+        .toggle-card.active-no .toggle-indicator { color: #dc2626; }
+        .file-requirements { background: #f8fafc; border-radius: 10px; padding: 15px; margin-top: 20px; border-left: 4px solid #3b82f6; }
+        .container { max-height: 100vh; overflow-y: auto; }
+        .column-requirements { background: #fefce8; border-left: 4px solid #f59e0b; padding: 12px 16px; border-radius: 8px; margin-top: 12px; }
+        .column-requirements .badge-new { background: #10b981; color: white; font-size: 9px; padding: 1px 8px; border-radius: 12px; margin-left: 4px; }
+        .permanent-link-badge { background: #dbeafe; color: #1e40af; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; display: inline-block; }
+        .icd-alert { background: linear-gradient(135deg, #fef3c7, #fde68a); border: 2px solid #f59e0b; border-radius: 12px; padding: 16px 20px; margin-top: 16px; display: flex; align-items: flex-start; gap: 14px; }
+        .icd-alert .icd-icon { background: rgba(255,255,255,0.6); width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+        .icd-alert .icd-content { flex: 1; }
+        .icd-alert .icd-title { font-weight: 700; color: #78350f; font-size: 14px; margin-bottom: 6px; }
+        .icd-alert .icd-desc { font-size: 12px; color: #92400e; line-height: 1.5; margin-bottom: 8px; }
+        .icd-alert .icd-list { background: rgba(255,255,255,0.6); border-radius: 8px; padding: 10px 14px; font-size: 11px; color: #78350f; font-weight: 600; max-height: 160px; overflow-y: auto; font-family: 'Courier New', monospace; }
+        .icd-alert .icd-list-item { padding: 3px 0; border-bottom: 1px dashed rgba(120,53,15,0.2); }
+        .icd-alert .icd-list-item:last-child { border-bottom: none; }
+        .form-section-title { font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    </style>
+</head>
+<body>
+    <a href="<?= ScriptApp.getService().getUrl() ?>" class="back-btn btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-2"></i>Back to Home
+    </a>
+
+    <div class="container py-5" style="max-width: 900px;">
+        <div class="text-center mb-5">
+            <i class="fas fa-file-excel fa-4x mb-3" style="color: #10b981;"></i>
+            <h1 class="display-5 fw-bold">Upload Claims Data</h1>
+            <p class="lead text-muted">Upload your Excel file to create a permanent dashboard</p>
+            <div class="mt-2">
+                <span class="permanent-link-badge"><i class="fas fa-link me-1"></i> One Link Forever</span>
+                <span class="permanent-link-badge ms-2 bg-green-100 text-green-700"><i class="fas fa-sync me-1"></i> Auto-updates via Google Sheets</span>
+            </div>
+        </div>
+
+        <div class="step-indicator">
+            <div class="step active" id="step1"><div class="step-number">1</div><div class="step-label">Upload File</div></div>
+            <div class="step" id="step2"><div class="step-number">2</div><div class="step-label">Enter Details</div></div>
+            <div class="step" id="step3"><div class="step-number">3</div><div class="step-label">Generate Link</div></div>
+        </div>
+
+        <!-- Client ID -->
+        <div class="client-id-container">
+            <div class="d-flex align-items-center mb-3">
+                <div class="bg-primary rounded-circle p-2 me-3"><i class="fas fa-user fa-lg text-white"></i></div>
+                <div><h5 class="mb-1">Client Information</h5><p class="text-muted mb-0">Enter Client ID and Name</p></div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <label class="form-label fw-bold"><i class="fas fa-tag me-1 text-primary"></i>Client ID</label>
+                    <input type="text" id="clientIdInput" class="form-control" placeholder="e.g., clientA, acme_corp">
+                    <div class="form-text"><i class="fas fa-info-circle me-1"></i>Use the same Client ID to update an existing dashboard.</div>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-bold"><i class="fas fa-building me-1 text-primary"></i>Client Name</label>
+                    <input type="text" id="clientNameInput" class="form-control" placeholder="e.g., Acme Corp">
+                    <div class="form-text"><i class="fas fa-info-circle me-1"></i>Used as the Google Sheet name.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- No Claims Toggle -->
+        <div class="no-claims-section">
+            <div class="form-section-title"><i class="fas fa-toggle-on text-success"></i>Does this client have claims this period?</div>
+            <div class="toggle-row">
+                <div class="toggle-card active-yes" id="hasClaimsYes" onclick="setHasClaims(true)">
+                    <div class="toggle-title">✅ Yes — Has Claims</div>
+                    <div class="toggle-desc">Upload the Excel file with this period's claims.</div>
+                    <div class="toggle-indicator"><i class="fas fa-check-circle"></i> <span>Selected</span></div>
+                </div>
+                <div class="toggle-card" id="hasClaimsNo" onclick="setHasClaims(false)">
+                    <div class="toggle-title">🚫 No — No Claims</div>
+                    <div class="toggle-desc">Shows premium, lives, wallet, and a "no claims" banner.</div>
+                    <div class="toggle-indicator"><i class="fas fa-circle"></i> <span>Choose</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upload Zone -->
+        <div class="mb-4" id="uploadZoneSection">
+            <div class="upload-zone" id="uploadZone"
+                 ondragover="event.preventDefault(); this.classList.add('dragover')"
+                 ondragleave="this.classList.remove('dragover')"
+                 ondrop="handleDrop(event)">
+                <i class="fas fa-cloud-upload-alt fa-4x mb-3" style="color: #cbd5e1;"></i>
+                <h4>Drag & Drop your Excel file here</h4>
+                <p class="text-muted mb-3">or click to browse</p>
+                <p class="text-muted small"><i class="fas fa-check-circle text-success me-1"></i>Supports: .xlsx, .xls (Max: 10MB)</p>
+                <input type="file" id="fileInput" class="d-none" accept=".xlsx,.xls" onchange="handleFileSelect()">
+            </div>
+        </div>
+
+        <div class="file-preview" id="filePreview">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-file-excel fa-3x text-success me-3"></i>
+                    <div><h5 id="fileName" class="mb-1"></h5><p class="text-muted mb-0" id="fileSize"></p></div>
+                </div>
+                <button class="btn btn-outline-danger" onclick="clearFile()"><i class="fas fa-times me-1"></i>Remove</button>
+            </div>
+        </div>
+
+        <!-- Dates -->
+        <div class="mb-4" id="dateSection" style="display: none;">
+            <div class="date-input-container">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-primary rounded-circle p-2 me-3"><i class="fas fa-calendar-alt fa-lg text-white"></i></div>
+                    <div><h5 class="mb-1">Dashboard Information</h5><p class="text-muted mb-0">Enter dashboard generation date</p></div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold"><i class="fas fa-calendar-plus me-1 text-primary"></i>Dashboard Generation Date</label>
+                        <input type="date" id="generationDate" class="form-control">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Age Data Toggle -->
+        <div class="mb-4" id="ageSection" style="display: none;">
+            <div class="date-input-container">
+                <div class="form-section-title"><i class="fas fa-users text-primary"></i>Age Data Availability</div>
+                <p class="text-muted small mb-3">If the Excel has an "Age" column, enable this to show age-band charts and filters.</p>
+                <div class="toggle-row">
+                    <div class="toggle-card active-yes" id="ageYes" onclick="setAgeData(true)">
+                        <div class="toggle-title">✅ Yes — Age Data Available</div>
+                        <div class="toggle-desc">Age-band chart and Age Band filter will appear.</div>
+                        <div class="toggle-indicator"><i class="fas fa-check-circle"></i> <span>Selected</span></div>
+                    </div>
+                    <div class="toggle-card" id="ageNo" onclick="setAgeData(false)">
+                        <div class="toggle-title">🚫 No — No Age Data</div>
+                        <div class="toggle-desc">Age charts and filter will be hidden.</div>
+                        <div class="toggle-indicator"><i class="fas fa-circle"></i> <span>Choose</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Policies with per-policy wallet + lives -->
+        <div class="mb-4" id="policiesSection" style="display: none;">
+            <div class="policy-container">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-warning rounded-circle p-2 me-3"><i class="fas fa-file-contract fa-lg text-white"></i></div>
+                    <div><h5 class="mb-1">Policies (Required)</h5><p class="text-muted mb-0">Add one entry per policy. Each policy has its own wallet and lives.</p></div>
+                </div>
+                <div id="policiesContainer"></div>
+                <button type="button" class="add-policy-btn" onclick="addPolicyBlock()">
+                    <i class="fas fa-plus me-2"></i>Add Another Policy
+                </button>
+            </div>
+        </div>
+
+        <!-- File Requirements -->
+        <div class="file-requirements">
+            <h6><i class="fas fa-clipboard-check me-2"></i>File Requirements:</h6>
+            <ul class="mb-0 text-muted">
+                <li>First row should contain column headers</li>
+                <li>Required columns: Claim ID, Employee Code, Service Type (ICD), Claimed Amount, Paid Amount, Total Amount, Category</li>
+                <li>File should not contain merged cells</li>
+                <li>Maximum file size: 10MB</li>
+            </ul>
+            <div class="column-requirements mt-3">
+                <h6 class="mb-1"><i class="fas fa-columns me-2"></i>Optional Columns for Enhanced Features:</h6>
+                <ul class="mb-0 text-muted small">
+                    <li><span class="badge-new">NEW</span> <strong>Diagnosis</strong> — for mixed cost-driver analysis</li>
+                    <li><span class="badge-new">NEW</span> <strong>Policy Number</strong> &amp; <strong>Policy Type</strong> — for multi-policy dashboards</li>
+                    <li><span class="badge-new">NEW</span> <strong>Age</strong> — for age-band charts and filters</li>
+                    <li><span class="badge-new">NEW</span> <strong>Gender</strong> — for gender doughnut chart</li>
+                    <li><span class="badge-new">NEW</span> <strong>Denied Reason</strong> — for denied claims analysis</li>
+                    <li><span class="badge-new">NEW</span> <strong>Claim Received Date</strong> — for month-wise filtering</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Progress -->
+        <div class="progress-container" id="progressContainer"><div class="progress-bar" id="progressBar"></div></div>
+
+        <!-- Action Button -->
+        <div class="text-center mt-4">
+            <button id="processBtn" class="btn btn-primary btn-lg" disabled onclick="processUpload()">
+                <span id="btnText"><i class="fas fa-rocket me-2"></i>Create Dashboard</span>
+                <span class="loading-spinner" id="loadingSpinner">
+                    <span class="spinner-border spinner-border-sm me-2" role="status"></span>Processing...
+                </span>
+            </button>
+        </div>
+
+        <!-- Result -->
+        <div class="result-card card border-success mt-4" id="resultCard">
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <div class="bg-success bg-gradient rounded-circle p-3 d-inline-block"><i class="fas fa-check fa-2x text-white"></i></div>
+                    <h4 class="card-title mt-3 text-success">Dashboard Created!</h4>
+                    <p class="card-text">Your interactive dashboard is ready to share.</p>
+                </div>
+                <div id="icdAlert" class="icd-alert" style="display: none;">
+                    <div class="icd-icon">🔍</div>
+                    <div class="icd-content">
+                        <div class="icd-title"><i class="fas fa-exclamation-circle"></i> <span id="icdAlertTitle">New ICD codes detected</span></div>
+                        <div class="icd-desc">These were auto-classified with generic content. Review in <strong>ICD_Master_Dictionary</strong>.</div>
+                        <div class="icd-list" id="icdList"></div>
+                    </div>
+                </div>
+                <div id="unknownPolicyAlert" class="alert alert-warning mt-3" style="display: none;">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Unknown Policies Detected:</strong> Some claims reference policy numbers that don't match any policy you entered. They will be flagged as "Unknown Policy" in the dashboard. <br>
+                    <small id="unknownPolicyList" class="d-block mt-2"></small>
+                </div>
+                <div class="mb-4 mt-3">
+                    <label class="form-label fw-bold">Permanent Shareable Link:</label>
+                    <div class="input-group">
+                        <input type="text" id="shareLink" class="form-control" readonly>
+                        <button class="btn btn-success" onclick="copyLink()"><i class="fas fa-copy me-1"></i>Copy</button>
+                    </div>
+                    <div id="copyStatus" class="text-success small mt-2" style="display: none;"><i class="fas fa-check me-1"></i>Link copied!</div>
+                    <div class="text-muted small mt-1"><i class="fas fa-info-circle me-1"></i>This link is permanent. To update data, upload again with the same Client ID.</div>
+                    <div class="text-muted small mt-1"><i class="fas fa-building me-1"></i>Client Name: <span id="resultClientName">-</span></div>
+                </div>
+                <div class="d-grid gap-2 d-md-flex justify-content-md-center mt-4">
+                    <a href="#" id="openDashboardBtn" target="_blank" class="btn btn-primary"><i class="fas fa-external-link-alt me-2"></i>Open Dashboard</a>
+                    <a href="<?= ScriptApp.getService().getUrl() ?>?mode=upload" class="btn btn-outline-secondary"><i class="fas fa-plus me-2"></i>Upload Another</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="alert alert-danger mt-3" id="errorAlert" style="display: none;">
+            <i class="fas fa-exclamation-triangle me-2"></i><span id="errorMessage"></span>
+        </div>
+    </div>
+
+    <script>
+        let selectedFile = null;
+        let uploadInProgress = false;
+        let hasClaims = true;
+        let ageDataAvailable = true;
+        let policyBlockCount = 0;
+        
+        const uploadZone = document.getElementById('uploadZone');
+        const fileInput = document.getElementById('fileInput');
+        const filePreview = document.getElementById('filePreview');
+        const fileName = document.getElementById('fileName');
+        const fileSize = document.getElementById('fileSize');
+        const clientIdInput = document.getElementById('clientIdInput');
+        const clientNameInput = document.getElementById('clientNameInput');
+        const dateSection = document.getElementById('dateSection');
+        const ageSection = document.getElementById('ageSection');
+        const policiesSection = document.getElementById('policiesSection');
+        const processBtn = document.getElementById('processBtn');
+        const btnText = document.getElementById('btnText');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const resultCard = document.getElementById('resultCard');
+        const shareLink = document.getElementById('shareLink');
+        const openDashboardBtn = document.getElementById('openDashboardBtn');
+        const errorAlert = document.getElementById('errorAlert');
+        const errorMessage = document.getElementById('errorMessage');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressBar = document.getElementById('progressBar');
+        const icdAlert = document.getElementById('icdAlert');
+        const icdList = document.getElementById('icdList');
+        const icdAlertTitle = document.getElementById('icdAlertTitle');
+        const unknownPolicyAlert = document.getElementById('unknownPolicyAlert');
+        const unknownPolicyList = document.getElementById('unknownPolicyList');
+        const resultClientName = document.getElementById('resultClientName');
+        const policiesContainer = document.getElementById('policiesContainer');
+        
+        const step1 = document.getElementById('step1');
+        const step2 = document.getElementById('step2');
+        const step3 = document.getElementById('step3');
+        
+        uploadZone.addEventListener('click', () => fileInput.click());
+        
+        // ============ HAS CLAIMS TOGGLE ============
+        function setHasClaims(val) {
+            hasClaims = val;
+            const yesCard = document.getElementById('hasClaimsYes');
+            const noCard = document.getElementById('hasClaimsNo');
+            if (val) {
+                yesCard.classList.add('active-yes'); noCard.classList.remove('active-no');
+                yesCard.querySelector('.toggle-indicator').innerHTML = '<i class="fas fa-check-circle"></i> <span>Selected</span>';
+                noCard.querySelector('.toggle-indicator').innerHTML = '<i class="fas fa-circle"></i> <span>Choose</span>';
+                document.getElementById('uploadZoneSection').style.display = 'block';
+            } else {
+                noCard.classList.add('active-no'); yesCard.classList.remove('active-yes');
+                noCard.querySelector('.toggle-indicator').innerHTML = '<i class="fas fa-check-circle"></i> <span>Selected</span>';
+                yesCard.querySelector('.toggle-indicator').innerHTML = '<i class="fas fa-circle"></i> <span>Choose</span>';
+                document.getElementById('uploadZoneSection').style.display = 'none';
+                selectedFile = null; fileInput.value = '';
+                filePreview.style.display = 'none'; uploadZone.classList.remove('has-file');
+            }
+            updateFormVisibility();
+        }
+        
+        function setAgeData(val) {
+            ageDataAvailable = val;
+            const yesCard = document.getElementById('ageYes');
+            const noCard = document.getElementById('ageNo');
+            if (val) {
+                yesCard.classList.add('active-yes'); noCard.classList.remove('active-no');
+                yesCard.querySelector('.toggle-indicator').innerHTML = '<i class="fas fa-check-circle"></i> <span>Selected</span>';
+                noCard.querySelector('.toggle-indicator').innerHTML = '<i class="fas fa-circle"></i> <span>Choose</span>';
+            } else {
+                noCard.classList.add('active-no'); yesCard.classList.remove('active-yes');
+                noCard.querySelector('.toggle-indicator').innerHTML = '<i class="fas fa-check-circle"></i> <span>Selected</span>';
+                yesCard.querySelector('.toggle-indicator').innerHTML = '<i class="fas fa-circle"></i> <span>Choose</span>';
+            }
+        }
+        
+        function updateFormVisibility() {
+            const ready = (hasClaims ? (selectedFile !== null) : true);
+            if (ready) {
+                dateSection.style.display = 'block';
+                ageSection.style.display = 'block';
+                policiesSection.style.display = 'block';
+                if (policiesContainer.children.length === 0) addPolicyBlock();
+                const today = new Date().toISOString().split('T')[0];
+                if (!document.getElementById('generationDate').value) document.getElementById('generationDate').value = today;
+                processBtn.disabled = false;
+            } else {
+                processBtn.disabled = true;
+            }
+        }
+        
+        // ============ POLICY BLOCK ============
+        function addPolicyBlock() {
+            policyBlockCount++;
+            const idx = policyBlockCount;
+            const isFirst = idx === 1;
+            const blockId = 'policy_' + idx;
+            
+            const block = document.createElement('div');
+            block.className = 'policy-block';
+            block.setAttribute('data-policy-index', idx);
+            block.id = blockId;
+            
+            block.innerHTML = `
+                <div class="policy-block-header">
+                    <h6>
+                        <i class="fas fa-file-contract"></i> Policy ${idx} ${isFirst ? '(Primary)' : ''}
+                    </h6>
+                    ${isFirst ? '' : '<span class="remove-policy" onclick="removePolicyBlock(this)"><i class="fas fa-times"></i> Remove</span>'}
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-2">
+                        <label class="form-label small fw-bold">Policy Number *</label>
+                        <input type="text" class="form-control policyNumberInput" placeholder="e.g., ESC-001" ${isFirst ? 'value="PRIMARY"' : ''}>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <label class="form-label small fw-bold">Policy Type</label>
+                        <select class="form-select policyTypeInput">
+                            <option value="ESC" ${isFirst ? 'selected' : ''}>ESC</option>
+                            <option value="TOP UP">TOP UP</option>
+                            <option value="Parental">Parental</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-2">
+                        <label class="form-label small fw-bold">Premium (₹) *</label>
+                        <input type="number" class="form-control policyPremiumInput" placeholder="e.g., 5000000">
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <label class="form-label small fw-bold">Earned Premium (₹)</label>
+                        <input type="number" class="form-control policyEarnedInput" placeholder="Optional">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 mb-2">
+                        <label class="form-label small fw-bold">Lives *</label>
+                        <input type="number" class="form-control policyLivesInput" placeholder="e.g., 100">
+                    </div>
+                    <div class="col-md-4 mb-2">
+                        <label class="form-label small fw-bold">Start Date</label>
+                        <input type="date" class="form-control policyStartInput">
+                    </div>
+                    <div class="col-md-4 mb-2">
+                        <label class="form-label small fw-bold">End Date</label>
+                        <input type="date" class="form-control policyEndInput">
+                    </div>
+                </div>
+
+                <!-- Wallet Amount subsection -->
+                <div class="policy-subsection">
+                    <div class="policy-subsection-title"><i class="fas fa-wallet"></i> Wallet Amount Brackets (Required)</div>
+                    <div class="wallet-brackets-container">
+                        <div class="wallet-bracket-row">
+                            <div class="bracket-input">
+                                <label class="form-label small fw-bold mb-1">Wallet Amount (₹)</label>
+                                <input type="number" class="form-control walletSIInput" placeholder="e.g., 300000">
+                            </div>
+                            <div class="bracket-input">
+                                <label class="form-label small fw-bold mb-1">Employees</label>
+                                <input type="number" class="form-control walletLivesInput" placeholder="e.g., 150">
+                            </div>
+                            <div class="remove-bracket" onclick="removeBracketRow(this)"><i class="fas fa-times"></i></div>
+                        </div>
+                    </div>
+                    <button type="button" class="add-bracket-btn" onclick="addWalletBracket(this)">
+                        <i class="fas fa-plus me-1"></i> Add Another Bracket
+                    </button>
+                </div>
+
+                <!-- Lives Distribution subsection -->
+                <div class="policy-subsection">
+                    <div class="policy-subsection-title"><i class="fas fa-users"></i> Lives Distribution (Required)</div>
+                    <div class="lives-relation-grid">
+                        <div class="relation-field"><label>Employee</label><input type="number" class="relationSelfInput" value="0" min="0"></div>
+                        <div class="relation-field"><label>Spouse</label><input type="number" class="relationSpouseInput" value="0" min="0"></div>
+                        <div class="relation-field"><label>Son</label><input type="number" class="relationSonInput" value="0" min="0"></div>
+                        <div class="relation-field"><label>Daughter</label><input type="number" class="relationDaughterInput" value="0" min="0"></div>
+                        <div class="relation-field"><label>Father</label><input type="number" class="relationFatherInput" value="0" min="0"></div>
+                        <div class="relation-field"><label>Mother</label><input type="number" class="relationMotherInput" value="0" min="0"></div>
+                        <div class="relation-field"><label>Father-in-law</label><input type="number" class="relationFatherInLawInput" value="0" min="0"></div>
+                        <div class="relation-field"><label>Mother-in-law</label><input type="number" class="relationMotherInLawInput" value="0" min="0"></div>
+                    </div>
+                </div>
+            `;
+            policiesContainer.appendChild(block);
+        }
+        
+        function removePolicyBlock(el) {
+            const block = el.closest('.policy-block');
+            if (policiesContainer.children.length > 1) block.remove();
+        }
+        
+        function addWalletBracket(btn) {
+            const block = btn.closest('.policy-block');
+            const container = block.querySelector('.wallet-brackets-container');
+            const row = document.createElement('div');
+            row.className = 'wallet-bracket-row';
+            row.innerHTML = `
+                <div class="bracket-input">
+                    <label class="form-label small fw-bold mb-1">Wallet Amount (₹)</label>
+                    <input type="number" class="form-control walletSIInput" placeholder="e.g., 300000">
+                </div>
+                <div class="bracket-input">
+                    <label class="form-label small fw-bold mb-1">Employees</label>
+                    <input type="number" class="form-control walletLivesInput" placeholder="e.g., 150">
+                </div>
+                <div class="remove-bracket" onclick="removeBracketRow(this)"><i class="fas fa-times"></i></div>
+            `;
+            container.appendChild(row);
+        }
+        
+        function removeBracketRow(el) {
+            const row = el.closest('.wallet-bracket-row');
+            const container = row.parentElement;
+            if (container.children.length > 1) row.remove();
+            else {
+                row.querySelectorAll('input').forEach(i => i.value = '');
+            }
+        }
+        
+        function getPoliciesData() {
+            const blocks = policiesContainer.querySelectorAll('.policy-block');
+            const policies = [];
+            blocks.forEach(block => {
+                const num = block.querySelector('.policyNumberInput').value.trim();
+                const type = block.querySelector('.policyTypeInput').value.trim();
+                const prem = parseFloat(block.querySelector('.policyPremiumInput').value) || 0;
+                const earned = parseFloat(block.querySelector('.policyEarnedInput').value) || 0;
+                const lives = parseInt(block.querySelector('.policyLivesInput').value) || 0;
+                const start = block.querySelector('.policyStartInput').value;
+                const end = block.querySelector('.policyEndInput').value;
+                
+                // Wallet brackets
+                const walletBrackets = [];
+                block.querySelectorAll('.wallet-bracket-row').forEach(row => {
+                    const si = parseFloat(row.querySelector('.walletSIInput').value);
+                    const lv = parseInt(row.querySelector('.walletLivesInput').value);
+                    if (si > 0 && lv > 0) walletBrackets.push({ sumInsured: si, lives: lv });
+                });
+                
+                // Lives distribution
+                const livesDist = {
+                    self: parseInt(block.querySelector('.relationSelfInput').value) || 0,
+                    spouse: parseInt(block.querySelector('.relationSpouseInput').value) || 0,
+                    son: parseInt(block.querySelector('.relationSonInput').value) || 0,
+                    daughter: parseInt(block.querySelector('.relationDaughterInput').value) || 0,
+                    father: parseInt(block.querySelector('.relationFatherInput').value) || 0,
+                    mother: parseInt(block.querySelector('.relationMotherInput').value) || 0,
+                    fatherInLaw: parseInt(block.querySelector('.relationFatherInLawInput').value) || 0,
+                    motherInLaw: parseInt(block.querySelector('.relationMotherInLawInput').value) || 0,
+                    others: 0
+                };
+                
+                if (num || prem > 0) {
+                    policies.push({
+                        policyNumber: num || ('POLICY-' + (policies.length + 1)),
+                        policyType: type || 'ESC',
+                        premium: prem,
+                        earnedPremium: earned,
+                        lives: lives,
+                        startDate: start,
+                        endDate: end,
+                        visibility: 'Active',
+                        walletBrackets: walletBrackets,
+                        livesDistribution: livesDist
+                    });
+                }
+            });
+            return policies;
+        }
+        
+        // ============ FILE HANDLING ============
+        function handleFileSelect() { handleFile(fileInput.files[0]); }
+        function handleDrop(e) {
+            e.preventDefault();
+            e.target.classList.remove('dragover');
+            handleFile(e.dataTransfer.files[0]);
+        }
+        function handleFile(file) {
+            if (!file) return;
+            const fileExt = '.' + file.name.split('.').pop().toLowerCase();
+            if (!['.xlsx', '.xls'].includes(fileExt)) { showError('Please upload an Excel file (.xlsx or .xls)'); return; }
+            if (file.size > 10 * 1024 * 1024) { showError('File too large. Maximum: 10MB'); return; }
+            selectedFile = file;
+            fileName.textContent = file.name;
+            fileSize.textContent = formatFileSize(file.size);
+            filePreview.style.display = 'block';
+            uploadZone.classList.add('has-file');
+            step1.classList.add('completed');
+            step2.classList.add('active');
+            updateFormVisibility();
+            hideError();
+        }
+        function clearFile() {
+            selectedFile = null; fileInput.value = '';
+            filePreview.style.display = 'none';
+            uploadZone.classList.remove('has-file');
+            processBtn.disabled = true;
+        }
+        
+        // ============ VALIDATION ============
+        function validateDates() {
+            if (!document.getElementById('generationDate').value) { showError('Please enter Dashboard Generation Date'); return false; }
+            return true;
+        }
+        
+        function validatePolicies() {
+            const policies = getPoliciesData();
+            if (policies.length === 0) { showError('Please enter at least one policy'); return false; }
+            for (let i = 0; i < policies.length; i++) {
+                const p = policies[i];
+                if (!p.policyNumber) { showError(`Policy ${i+1}: Policy Number is required`); return false; }
+                if (p.premium <= 0) { showError(`Policy ${i+1}: Premium must be greater than 0`); return false; }
+                if (p.walletBrackets.length === 0) { showError(`Policy ${i+1}: At least one wallet bracket is required`); return false; }
+                const livesSum = p.livesDistribution.self + p.livesDistribution.spouse + p.livesDistribution.son + p.livesDistribution.daughter + p.livesDistribution.father + p.livesDistribution.mother + p.livesDistribution.fatherInLaw + p.livesDistribution.motherInLaw;
+                if (livesSum === 0) { showError(`Policy ${i+1}: Lives distribution must have at least one life`); return false; }
+            }
+            return true;
+        }
+        
+        // ============ UPLOAD ============
+        function processUpload() {
+            if (uploadInProgress) return;
+            const clientId = clientIdInput.value.trim();
+            const clientName = clientNameInput.value.trim();
+            if (!clientId) { showError('Please enter a Client ID'); return; }
+            if (!clientName) { showError('Please enter a Client Name'); return; }
+            if (!validateDates() || !validatePolicies()) return;
+            if (hasClaims && !selectedFile) { showError('Please upload the Excel file'); return; }
+            
+            uploadInProgress = true;
+            btnText.style.display = 'none';
+            loadingSpinner.style.display = 'inline';
+            processBtn.disabled = true;
+            progressContainer.style.display = 'block';
+            hideError();
+            
+            const existingClients = JSON.parse(localStorage.getItem('existingClients') || '[]');
+            if (!existingClients.includes(clientId)) {
+                existingClients.push(clientId);
+                localStorage.setItem('existingClients', JSON.stringify(existingClients));
+            }
+            
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += 5;
+                progressBar.style.width = Math.min(progress, 90) + '%';
+                if (progress >= 90) clearInterval(progressInterval);
+            }, 100);
+            
+            const submitData = (base64Content, fName) => {
+                const generationDate = document.getElementById('generationDate').value;
+                const policies = getPoliciesData();
+                const uploadData = {
+                    fileName: fName || '',
+                    fileContent: base64Content || '',
+                    hasClaims: hasClaims,
+                    generationDate: generationDate,
+                    clientName: clientName,
+                    ageDataAvailable: ageDataAvailable,
+                    policies: policies
+                };
+                
+                google.script.run
+                    .withSuccessHandler(function(response) {
+                        clearInterval(progressInterval);
+                        progressBar.style.width = '100%';
+                        if (!response) { handleUploadError('No response'); return; }
+                        if (response.success) {
+                            setTimeout(() => showResult(response), 500);
+                        } else {
+                            handleUploadError(response.error || 'Upload failed');
+                        }
+                    })
+                    .withFailureHandler(function(error) {
+                        clearInterval(progressInterval);
+                        handleUploadError(error.message || 'Server error');
+                    })
+                    .uploadFile(uploadData);
+            };
+            
+            if (hasClaims && selectedFile) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const base64 = e.target.result.split(',')[1];
+                        submitData(base64, selectedFile.name);
+                    } catch (err) { clearInterval(progressInterval); handleUploadError('Error: ' + err.message); }
+                };
+                reader.onerror = function() { clearInterval(progressInterval); handleUploadError('Failed to read file'); };
+                reader.readAsDataURL(selectedFile);
+            } else {
+                submitData('', '');
+            }
+        }
+        
+        function showResult(response) {
+            if (!response || !response.success) {
+                handleUploadError(response?.error || 'Upload failed');
+                return;
+            }
+            step2.classList.add('completed');
+            step3.classList.add('active');
+            uploadInProgress = false;
+            loadingSpinner.style.display = 'none';
+            processBtn.style.display = 'none';
+            progressContainer.style.display = 'none';
+            
+            // ICD alert
+            if (response.newICDsDetected && response.newICDsDetected.length > 0) {
+                icdAlert.style.display = 'flex';
+                icdAlertTitle.textContent = response.newICDsDetected.length + ' New ICD code' + (response.newICDsDetected.length > 1 ? 's' : '') + ' detected';
+                icdList.innerHTML = response.newICDsDetected.map(icd => `<div class="icd-list-item"><i class="fas fa-tag me-2"></i>${icd}</div>`).join('');
+            } else {
+                icdAlert.style.display = 'none';
+            }
+            
+            // Unknown policy alert
+            if (response.unknownPolicies && response.unknownPolicies.length > 0) {
+                unknownPolicyAlert.style.display = 'block';
+                unknownPolicyList.textContent = 'Unknown policy numbers: ' + response.unknownPolicies.join(', ');
+            } else {
+                unknownPolicyAlert.style.display = 'none';
+            }
+            
+            if (response.shareUrl) {
+                shareLink.value = response.shareUrl;
+                openDashboardBtn.href = response.shareUrl;
+                resultClientName.textContent = response.clientName || response.clientId || '-';
+                resultCard.style.display = 'block';
+                resultCard.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                handleUploadError('No share URL generated');
+            }
+        }
+        
+        function handleUploadError(error) {
+            uploadInProgress = false;
+            btnText.style.display = 'inline';
+            loadingSpinner.style.display = 'none';
+            processBtn.disabled = false;
+            processBtn.style.display = 'block';
+            progressContainer.style.display = 'none';
+            progressBar.style.width = '0%';
+            showError(typeof error === 'string' ? error : (error.message || 'An error occurred'));
+        }
+        
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorAlert.style.display = 'block';
+            errorAlert.scrollIntoView({ behavior: 'smooth' });
+        }
+        function hideError() { errorAlert.style.display = 'none'; }
+        
+        function copyLink() {
+            shareLink.select();
+            shareLink.setSelectionRange(0, 99999);
+            try {
+                navigator.clipboard.writeText(shareLink.value).then(() => {
+                    document.getElementById('copyStatus').style.display = 'block';
+                    setTimeout(() => document.getElementById('copyStatus').style.display = 'none', 3000);
+                });
+            } catch (err) {
+                document.execCommand('copy');
+                document.getElementById('copyStatus').style.display = 'block';
+                setTimeout(() => document.getElementById('copyStatus').style.display = 'none', 3000);
+            }
+        }
+        
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024, sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const existingClients = JSON.parse(localStorage.getItem('existingClients') || '[]');
+            if (existingClients.length > 0) {
+                const datalist = document.createElement('datalist');
+                datalist.id = 'clientList';
+                existingClients.forEach(client => {
+                    const opt = document.createElement('option');
+                    opt.value = client;
+                    datalist.appendChild(opt);
+                });
+                document.body.appendChild(datalist);
+                clientIdInput.setAttribute('list', 'clientList');
+            }
+            updateFormVisibility();
+        });
+    </script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
