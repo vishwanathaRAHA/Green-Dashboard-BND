@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <base target="_top">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+        }
+        .card {
+            border-radius: 15px;
+            border: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            padding: 12px 30px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        .stats-card {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+        }
+        .dashboard-item {
+            transition: all 0.2s ease;
+        }
+        .dashboard-item:hover {
+            background: #f8fafc;
+        }
+        .client-name {
+            font-weight: 600;
+            color: #1e293b;
+        }
+        .client-id {
+            font-size: 11px;
+            color: #94a3b8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-5">
+        <!-- Header -->
+        <div class="text-center text-white mb-5">
+            <i class="fas fa-chart-line fa-4x mb-3"></i>
+            <h1 class="display-4 fw-bold">Claims Analytics Dashboard</h1>
+            <p class="lead">Upload Excel files and generate interactive dashboards</p>
+        </div>
+
+        <!-- Main Cards -->
+        <div class="row justify-content-center">
+            <!-- Upload Card -->
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-body text-center p-5">
+                        <div class="mb-4">
+                            <div class="bg-primary bg-gradient rounded-circle p-4 d-inline-block">
+                                <i class="fas fa-cloud-upload-alt fa-3x text-white"></i>
+                            </div>
+                        </div>
+                        <h3 class="card-title mb-3">Create New Dashboard</h3>
+                        <p class="card-text text-muted mb-4">
+                            Upload your Excel claims data and generate a shareable interactive dashboard.
+                        </p>
+                        <a href="<?= ScriptApp.getService().getUrl() ?>?mode=upload" 
+                           class="btn btn-primary btn-lg">
+                            <i class="fas fa-upload me-2"></i>Upload Excel File
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Existing Dashboards Card -->
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-body p-5">
+                        <div class="mb-4">
+                            <div class="bg-success bg-gradient rounded-circle p-4 d-inline-block">
+                                <i class="fas fa-th-large fa-3x text-white"></i>
+                            </div>
+                        </div>
+                        <h3 class="card-title mb-3">Your Dashboards</h3>
+                        <p class="card-text text-muted mb-3">
+                            Manage and access all your created dashboards.
+                        </p>
+                        <div id="dashboardList" class="mb-4">
+                            <div class="text-center">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <p class="mt-2 text-muted">Loading dashboards...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Card -->
+        <div class="row justify-content-center mt-4">
+            <div class="col-md-8">
+                <div class="card stats-card">
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-md-4 mb-3">
+                                <i class="fas fa-database fa-2x text-primary mb-2"></i>
+                                <h4 id="totalDashboards">0</h4>
+                                <p class="text-muted mb-0">Total Dashboards</p>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <i class="fas fa-file-excel fa-2x text-success mb-2"></i>
+                                <h4>.xlsx/.xls</h4>
+                                <p class="text-muted mb-0">File Support</p>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <i class="fas fa-shield-alt fa-2x text-warning mb-2"></i>
+                                <h4>Secure</h4>
+                                <p class="text-muted mb-0">Google Drive Storage</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center text-white mt-5">
+            <p class="mb-2">
+                <i class="fas fa-lock me-1"></i>
+                Data is securely stored in your Google Drive
+            </p>
+            <p class="small text-light">
+                <i class="fas fa-code me-1"></i>
+                Powered by Google Apps Script • No tokens or external APIs
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Load dashboards on page load
+        function loadDashboards() {
+            const listEl = document.getElementById('dashboardList');
+            
+            // Show loading state
+            listEl.innerHTML = `
+                <div class="text-center py-4">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2 text-muted">Loading dashboards...</p>
+                </div>
+            `;
+            
+            google.script.run
+                .withSuccessHandler(function(dashboards) {
+                    try {
+                        renderDashboards(dashboards);
+                    } catch (e) {
+                        console.error('Render error:', e);
+                        listEl.innerHTML = `
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                Error displaying dashboards: ${e.message}
+                            </div>
+                        `;
+                    }
+                })
+                .withFailureHandler(function(error) {
+                    console.error('Load error:', error);
+                    listEl.innerHTML = `
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Unable to load dashboards. Please refresh the page.
+                        </div>
+                    `;
+                })
+                .getAllDashboards();
+        }
+        
+        function renderDashboards(dashboards) {
+            const listEl = document.getElementById('dashboardList');
+            const totalEl = document.getElementById('totalDashboards');
+            
+            if (!dashboards) dashboards = [];
+            
+            totalEl.textContent = dashboards.length;
+            
+            if (dashboards.length === 0) {
+                listEl.innerHTML = `
+                    <div class="text-center py-4">
+                        <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">No dashboards created yet</p>
+                    </div>`;
+                return;
+            }
+            
+            let html = '<div class="list-group">';
+            dashboards.slice(0, 5).forEach(d => {
+                const date = new Date(d.createdAt);
+                const formattedDate = date.toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric'
+                });
+                
+                // Use clientName if available, fallback to fileName, then clientId
+                const displayName = d.clientName || d.fileName || d.clientId || 'Dashboard';
+                const clientIdDisplay = d.clientId ? `(${d.clientId})` : '';
+                
+                html += `
+                <div class="list-group-item border-0 mb-2 shadow-sm dashboard-item">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center flex-grow-1">
+                            <i class="fas fa-chart-bar text-primary me-3"></i>
+                            <div class="flex-grow-1">
+                                <div class="client-name">${escapeHtml(displayName)}</div>
+                                <small class="text-muted">
+                                    <i class="far fa-calendar me-1"></i>${formattedDate}
+                                    <span class="client-id ms-2">${escapeHtml(clientIdDisplay)}</span>
+                                </small>
+                            </div>
+                        </div>
+                        <div class="ms-2">
+                            <a href="${d.shareUrl}" target="_blank" 
+                               class="btn btn-sm btn-outline-primary me-2">
+                                <i class="fas fa-external-link-alt"></i> Open
+                            </a>
+                            <button onclick="deleteDashboardHandler('${d.id}')" 
+                                    class="btn btn-sm btn-outline-danger">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>`;
+            });
+            
+            if (dashboards.length > 5) {
+                html += `
+                <div class="text-center mt-2">
+                    <small class="text-muted">
+                        +${dashboards.length - 5} more dashboards
+                    </small>
+                </div>`;
+            }
+            
+            html += '</div>';
+            listEl.innerHTML = html;
+        }
+        
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function deleteDashboardHandler(id) {
+            if (!confirm('Delete this dashboard? This will:\n\n• Remove the client from the mapping sheet\n• Move the Google Sheet to trash\n• Break the shareable link\n\nThis cannot be undone.')) {
+                return;
+            }
+            
+            // Show loading on the specific button
+            const listEl = document.getElementById('dashboardList');
+            
+            google.script.run
+                .withSuccessHandler(function(response) {
+                    if (response && response.success) {
+                        // Show success message briefly
+                        const msg = document.createElement('div');
+                        msg.className = 'alert alert-success alert-dismissible fade show mt-2';
+                        msg.innerHTML = '<i class="fas fa-check-circle me-2"></i>Dashboard deleted successfully';
+                        listEl.parentElement.insertBefore(msg, listEl);
+                        
+                        setTimeout(() => msg.remove(), 2000);
+                        
+                        // Reload the list (not the whole page)
+                        loadDashboards();
+                    } else {
+                        alert('Delete failed: ' + (response && response.error ? response.error : 'Unknown error'));
+                    }
+                })
+                .withFailureHandler(function(error) {
+                    console.error('Delete error:', error);
+                    alert('Delete failed: ' + error.message);
+                })
+                .deleteDashboard(id);
+        }
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDashboards();
+            
+            // Add click animation to cards
+            const cards = document.querySelectorAll('.card');
+            cards.forEach(card => {
+                card.addEventListener('click', function(e) {
+                    if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') return;
+                    this.style.transform = 'scale(0.98)';
+                    setTimeout(() => {
+                        this.style.transform = '';
+                    }, 150);
+                });
+            });
+        });
+    </script>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
