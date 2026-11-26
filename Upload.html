@@ -201,6 +201,26 @@
             </div>
         </div>
 
+        <!-- Previous Policy Toggle -->
+        <div class="mb-4" id="previousSection" style="display: none;">
+            <div class="date-input-container">
+                <div class="form-section-title"><i class="fas fa-history text-primary"></i>Previous Policy Data</div>
+                <p class="text-muted small mb-3">Does this Excel also contain claims from a <strong>previous policy period</strong>? If yes, add the previous policy below. The dashboard will get a policy-period switcher and a comparison page.</p>
+                <div class="toggle-row">
+                    <div class="toggle-card" id="prevYes" onclick="setPreviousPolicy(true)">
+                        <div class="toggle-title">✅ Yes — Previous Policy Included</div>
+                        <div class="toggle-desc">Adds a policy-period filter and a Current vs Previous comparison.</div>
+                        <div class="toggle-indicator"><i class="fas fa-circle"></i> <span>Choose</span></div>
+                    </div>
+                    <div class="toggle-card active-no" id="prevNo" onclick="setPreviousPolicy(false)">
+                        <div class="toggle-title">🚫 No — Current Policy Only</div>
+                        <div class="toggle-desc">The dashboard shows the current policy only.</div>
+                        <div class="toggle-indicator"><i class="fas fa-check-circle"></i> <span>Selected</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Policies with per-policy wallet + lives -->
         <div class="mb-4" id="policiesSection" style="display: none;">
             <div class="policy-container">
@@ -298,7 +318,10 @@
         let uploadInProgress = false;
         let hasClaims = true;
         let ageDataAvailable = true;
+        let hasPreviousPolicy = false;
         let policyBlockCount = 0;
+        let selectedFileBase64 = null;   // file contents, read into memory the moment the file is chosen
+        let fileReadPending = false;
         
         const uploadZone = document.getElementById('uploadZone');
         const fileInput = document.getElementById('fileInput');
@@ -309,6 +332,7 @@
         const clientNameInput = document.getElementById('clientNameInput');
         const dateSection = document.getElementById('dateSection');
         const ageSection = document.getElementById('ageSection');
+        const previousSection = document.getElementById('previousSection');
         const policiesSection = document.getElementById('policiesSection');
         const processBtn = document.getElementById('processBtn');
         const btnText = document.getElementById('btnText');
@@ -349,8 +373,9 @@
                 noCard.querySelector('.toggle-indicator').innerHTML = '<i class="fas fa-check-circle"></i> <span>Selected</span>';
                 yesCard.querySelector('.toggle-indicator').innerHTML = '<i class="fas fa-circle"></i> <span>Choose</span>';
                 document.getElementById('uploadZoneSection').style.display = 'none';
-                selectedFile = null; fileInput.value = '';
+                selectedFile = null; selectedFileBase64 = null; fileReadPending = false; fileInput.value = '';
                 filePreview.style.display = 'none'; uploadZone.classList.remove('has-file');
+                if (hasPreviousPolicy) clearPreviousPolicy();
             }
             updateFormVisibility();
         }
@@ -375,6 +400,7 @@
             if (ready) {
                 dateSection.style.display = 'block';
                 ageSection.style.display = 'block';
+                previousSection.style.display = hasClaims ? 'block' : 'none';
                 policiesSection.style.display = 'block';
                 if (policiesContainer.children.length === 0) addPolicyBlock();
                 const today = new Date().toISOString().split('T')[0];
@@ -385,8 +411,74 @@
             }
         }
         
+        // ============ PREVIOUS POLICY TOGGLE ============
+        function paintPreviousToggle(val) {
+            const yesCard = document.getElementById('prevYes');
+            const noCard = document.getElementById('prevNo');
+            if (val) {
+                yesCard.classList.add('active-yes'); noCard.classList.remove('active-no');
+                yesCard.querySelector('.toggle-indicator').innerHTML = '<i class="fas fa-check-circle"></i> <span>Selected</span>';
+                noCard.querySelector('.toggle-indicator').innerHTML = '<i class="fas fa-circle"></i> <span>Choose</span>';
+            } else {
+                noCard.classList.add('active-no'); yesCard.classList.remove('active-yes');
+                noCard.querySelector('.toggle-indicator').innerHTML = '<i class="fas fa-check-circle"></i> <span>Selected</span>';
+                yesCard.querySelector('.toggle-indicator').innerHTML = '<i class="fas fa-circle"></i> <span>Choose</span>';
+            }
+        }
+
+        function previousBlocks() {
+            return Array.from(policiesContainer.querySelectorAll('.policy-block')).filter(b => {
+                const sel = b.querySelector('.policyPeriodInput');
+                return sel && sel.value === 'Previous';
+            });
+        }
+
+        function setPreviousPolicy(val) {
+            if (!val && previousBlocks().length > 0) {
+                if (!confirm('Remove the previous policy entries you have added?')) return;
+                previousBlocks().forEach(b => b.remove());
+                if (policiesContainer.children.length === 0) addPolicyBlock();
+            }
+            hasPreviousPolicy = val;
+            paintPreviousToggle(val);
+            policiesContainer.querySelectorAll('.policy-block').forEach(applyPeriodToBlock);
+            if (val && previousBlocks().length === 0) addPolicyBlock('Previous');
+        }
+
+        function clearPreviousPolicy() {
+            previousBlocks().forEach(b => b.remove());
+            if (policiesContainer.children.length === 0 && policiesSection.style.display !== 'none') addPolicyBlock();
+            hasPreviousPolicy = false;
+            paintPreviousToggle(false);
+            policiesContainer.querySelectorAll('.policy-block').forEach(applyPeriodToBlock);
+        }
+
+        function onPeriodChange(sel) { applyPeriodToBlock(sel.closest('.policy-block')); }
+
+        // Shows/hides the period selector and adjusts which fields are required for a policy block
+        function applyPeriodToBlock(block) {
+            if (!block) return;
+            const sel = block.querySelector('.policyPeriodInput');
+            const row = block.querySelector('.period-row');
+            if (row) row.style.display = hasPreviousPolicy ? 'flex' : 'none';
+            if (!hasPreviousPolicy && sel) sel.value = 'Current';
+            const isPrev = !!sel && sel.value === 'Previous';
+            const badge = block.querySelector('.period-badge');
+            if (badge) {
+                badge.style.display = (hasPreviousPolicy && sel) ? 'inline-block' : 'none';
+                badge.textContent = isPrev ? 'Previous' : 'Current';
+                badge.style.background = isPrev ? '#fef3c7' : '#d1fae5';
+                badge.style.color = isPrev ? '#92400e' : '#065f46';
+            }
+            const hint = block.querySelector('.prev-hint');
+            if (hint) hint.style.display = isPrev ? 'block' : 'none';
+            const optionalText = isPrev ? '(Optional for previous policy)' : '(Required)';
+            block.querySelectorAll('.reqWallet, .reqLives').forEach(el => el.textContent = optionalText);
+            block.querySelectorAll('.dateReq').forEach(el => el.textContent = isPrev ? ' *' : '');
+        }
+
         // ============ POLICY BLOCK ============
-        function addPolicyBlock() {
+        function addPolicyBlock(period) {
             policyBlockCount++;
             const idx = policyBlockCount;
             const isFirst = idx === 1;
@@ -401,8 +493,21 @@
                 <div class="policy-block-header">
                     <h6>
                         <i class="fas fa-file-contract"></i> Policy ${idx} ${isFirst ? '(Primary)' : ''}
+                        <span class="period-badge" style="display:none; font-size:11px; padding:2px 10px; border-radius:12px; font-weight:700;"></span>
                     </h6>
                     ${isFirst ? '' : '<span class="remove-policy" onclick="removePolicyBlock(this)"><i class="fas fa-times"></i> Remove</span>'}
+                </div>
+                <div class="row period-row" style="display:none;">
+                    <div class="col-md-6 mb-2">
+                        <label class="form-label small fw-bold">Policy Period *</label>
+                        <select class="form-select policyPeriodInput" onchange="onPeriodChange(this)">
+                            <option value="Current">Current policy</option>
+                            <option value="Previous">Previous policy</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-2 prev-hint" style="display:none;">
+                        <div class="form-text pt-4"><i class="fas fa-info-circle me-1"></i>Claims for this policy in the Excel must carry this Policy Number. Start and end dates are required.</div>
+                    </div>
                 </div>
                 <div class="row">
                     <div class="col-md-6 mb-2">
@@ -435,18 +540,18 @@
                         <input type="number" class="form-control policyLivesInput" placeholder="e.g., 100">
                     </div>
                     <div class="col-md-4 mb-2">
-                        <label class="form-label small fw-bold">Start Date</label>
+                        <label class="form-label small fw-bold">Start Date<span class="dateReq"></span></label>
                         <input type="date" class="form-control policyStartInput">
                     </div>
                     <div class="col-md-4 mb-2">
-                        <label class="form-label small fw-bold">End Date</label>
+                        <label class="form-label small fw-bold">End Date<span class="dateReq"></span></label>
                         <input type="date" class="form-control policyEndInput">
                     </div>
                 </div>
 
                 <!-- Wallet Amount subsection -->
                 <div class="policy-subsection">
-                    <div class="policy-subsection-title"><i class="fas fa-wallet"></i> Wallet Amount Brackets (Required)</div>
+                    <div class="policy-subsection-title"><i class="fas fa-wallet"></i> Wallet Amount Brackets <span class="reqWallet">(Required)</span></div>
                     <div class="wallet-brackets-container">
                         <div class="wallet-bracket-row">
                             <div class="bracket-input">
@@ -467,7 +572,7 @@
 
                 <!-- Lives Distribution subsection -->
                 <div class="policy-subsection">
-                    <div class="policy-subsection-title"><i class="fas fa-users"></i> Lives Distribution (Required)</div>
+                    <div class="policy-subsection-title"><i class="fas fa-users"></i> Lives Distribution <span class="reqLives">(Required)</span></div>
                     <div class="lives-relation-grid">
                         <div class="relation-field"><label>Employee</label><input type="number" class="relationSelfInput" value="0" min="0"></div>
                         <div class="relation-field"><label>Spouse</label><input type="number" class="relationSpouseInput" value="0" min="0"></div>
@@ -481,6 +586,8 @@
                 </div>
             `;
             policiesContainer.appendChild(block);
+            if (period === 'Previous') block.querySelector('.policyPeriodInput').value = 'Previous';
+            applyPeriodToBlock(block);
         }
         
         function removePolicyBlock(el) {
@@ -527,6 +634,8 @@
                 const lives = parseInt(block.querySelector('.policyLivesInput').value) || 0;
                 const start = block.querySelector('.policyStartInput').value;
                 const end = block.querySelector('.policyEndInput').value;
+                const periodSel = block.querySelector('.policyPeriodInput');
+                const period = (hasPreviousPolicy && periodSel && periodSel.value === 'Previous') ? 'Previous' : 'Current';
                 
                 // Wallet brackets
                 const walletBrackets = [];
@@ -559,6 +668,7 @@
                         startDate: start,
                         endDate: end,
                         visibility: 'Active',
+                        period: period,
                         walletBrackets: walletBrackets,
                         livesDistribution: livesDist
                     });
@@ -580,6 +690,8 @@
             if (!['.xlsx', '.xls'].includes(fileExt)) { showError('Please upload an Excel file (.xlsx or .xls)'); return; }
             if (file.size > 10 * 1024 * 1024) { showError('File too large. Maximum: 10MB'); return; }
             selectedFile = file;
+            selectedFileBase64 = null;
+            readFileIntoMemory(file);
             fileName.textContent = file.name;
             fileSize.textContent = formatFileSize(file.size);
             filePreview.style.display = 'block';
@@ -589,8 +701,34 @@
             updateFormVisibility();
             hideError();
         }
+        // Reads the file right away so the dashboard can be generated later even if the original
+        // file is moved, locked or re-synced (OneDrive / Drive / Excel) while this page sits idle.
+        function readFileIntoMemory(file) {
+            fileReadPending = true;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                if (selectedFile !== file) return;
+                fileReadPending = false;
+                const result = String(e.target.result || '');
+                const base64 = result.indexOf(',') !== -1 ? result.split(',')[1] : '';
+                if (!base64) { handleReadFailure(); return; }
+                selectedFileBase64 = base64;
+            };
+            reader.onerror = function() {
+                if (selectedFile !== file) return;
+                fileReadPending = false;
+                handleReadFailure();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function handleReadFailure() {
+            clearFile();
+            showError('We could not read this file. If it is stored in OneDrive, Google Drive or a network folder, or is open in Excel, save a copy to your Desktop and select it again.');
+        }
+
         function clearFile() {
-            selectedFile = null; fileInput.value = '';
+            selectedFile = null; selectedFileBase64 = null; fileReadPending = false; fileInput.value = '';
             filePreview.style.display = 'none';
             uploadZone.classList.remove('has-file');
             processBtn.disabled = true;
@@ -609,9 +747,23 @@
                 const p = policies[i];
                 if (!p.policyNumber) { showError(`Policy ${i+1}: Policy Number is required`); return false; }
                 if (p.premium <= 0) { showError(`Policy ${i+1}: Premium must be greater than 0`); return false; }
+                if (p.period === 'Previous') {
+                    if (!p.startDate || !p.endDate) { showError(`Policy ${i+1} (Previous): Start and End dates are required`); return false; }
+                    if (p.endDate < p.startDate) { showError(`Policy ${i+1} (Previous): End date cannot be before the start date`); return false; }
+                    continue;
+                }
                 if (p.walletBrackets.length === 0) { showError(`Policy ${i+1}: At least one wallet bracket is required`); return false; }
                 const livesSum = p.livesDistribution.self + p.livesDistribution.spouse + p.livesDistribution.son + p.livesDistribution.daughter + p.livesDistribution.father + p.livesDistribution.mother + p.livesDistribution.fatherInLaw + p.livesDistribution.motherInLaw;
                 if (livesSum === 0) { showError(`Policy ${i+1}: Lives distribution must have at least one life`); return false; }
+            }
+            if (hasPreviousPolicy) {
+                if (!policies.some(p => p.period === 'Previous')) { showError('You chose "Previous policy included" - please add at least one previous policy.'); return false; }
+                if (!policies.some(p => p.period === 'Current')) { showError('Please keep at least one current policy.'); return false; }
+                const seen = {};
+                for (const p of policies) {
+                    if (seen[p.policyNumber]) { showError(`Policy Number "${p.policyNumber}" is used more than once. Each policy needs its own number so claims can be matched.`); return false; }
+                    seen[p.policyNumber] = true;
+                }
             }
             return true;
         }
@@ -625,6 +777,8 @@
             if (!clientName) { showError('Please enter a Client Name'); return; }
             if (!validateDates() || !validatePolicies()) return;
             if (hasClaims && !selectedFile) { showError('Please upload the Excel file'); return; }
+            if (hasClaims && fileReadPending) { showError('Still reading your file - please try again in a second.'); return; }
+            if (hasClaims && !selectedFileBase64) { showError('Your file is no longer available. Please select the Excel file again.'); return; }
             
             uploadInProgress = true;
             btnText.style.display = 'none';
@@ -678,15 +832,7 @@
             };
             
             if (hasClaims && selectedFile) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    try {
-                        const base64 = e.target.result.split(',')[1];
-                        submitData(base64, selectedFile.name);
-                    } catch (err) { clearInterval(progressInterval); handleUploadError('Error: ' + err.message); }
-                };
-                reader.onerror = function() { clearInterval(progressInterval); handleUploadError('Failed to read file'); };
-                reader.readAsDataURL(selectedFile);
+                submitData(selectedFileBase64, selectedFile.name);
             } else {
                 submitData('', '');
             }

@@ -523,7 +523,7 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
+            justify-content: flex-start;
             transition: all 0.3s;
         }
 
@@ -544,53 +544,48 @@
         .monthly-feature .feature-badge {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            background: linear-gradient(135deg, #3a8a4a, #4ca85a);
+            gap: 12px;
+            background: linear-gradient(135deg, #2f7d3e, #4ca85a);
             color: white;
-            padding: 8px 22px;
-            border-radius: 30px;
-            font-size: 0.8rem;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
+            padding: 12px 30px;
+            border-radius: 40px;
+            font-size: 1.45rem;
+            font-weight: 800;
+            letter-spacing: 0.3px;
             width: fit-content;
-            box-shadow: 0 4px 12px rgba(60, 140, 70, 0.25);
+            box-shadow: 0 6px 18px rgba(60, 140, 70, 0.3);
         }
 
         .monthly-feature .feature-month {
-            font-size: 4.2rem;
-            font-weight: 800;
-            color: #1f3f2a;
-            margin-top: 20px;
-            line-height: 1.05;
-            letter-spacing: -1.5px;
-        }
-
-        .monthly-feature .feature-month .year {
-            font-size: 1.4rem;
-            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 16px;
+            font-size: 0.85rem;
+            font-weight: 700;
             color: #4d6b4d;
-            display: block;
-            letter-spacing: 0;
-            margin-top: 4px;
+            background: rgba(255,255,255,0.6);
+            padding: 4px 14px;
+            border-radius: 20px;
+            width: fit-content;
+            letter-spacing: 0.4px;
         }
 
         .monthly-feature .feature-title {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: #2a482a;
-            margin-top: 16px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            font-size: 2.7rem;
+            font-weight: 800;
+            color: #1f3f2a;
+            margin-top: 18px;
+            line-height: 1.12;
+            letter-spacing: -0.8px;
         }
 
         .monthly-feature .feature-desc {
-            font-size: 1.05rem;
+            font-size: 1.3rem;
             font-weight: 600;
-            color: #3a5a3a;
-            margin-top: 10px;
-            line-height: 1.55;
+            color: #2f4f2f;
+            margin-top: 14px;
+            line-height: 1.5;
         }
 
         .monthly-feature .feature-highlights {
@@ -646,14 +641,19 @@
 
         .raha-hub:hover { box-shadow: 0 16px 48px rgba(120, 170, 110, 0.12); }
 
+        .raha-hub .hub-head { text-align: center; margin-bottom: 12px; }
         .raha-hub .hub-title {
-            font-size: 0.72rem;
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: #1f3f2a;
+            letter-spacing: 0.2px;
+            text-align: center;
+        }
+        .raha-hub .hub-sub {
+            font-size: 0.85rem;
             font-weight: 700;
-            color: #2d6a2d;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 12px;
-            opacity: 0.85;
+            color: #4d6b4d;
+            margin-top: 2px;
             text-align: center;
         }
 
@@ -2111,6 +2111,90 @@
         ::-webkit-scrollbar-track { background: #f1f5f9; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
 
+
+        /* ===== NEW: WELLNESS SECTION HEADING + CARDS ===== */
+        .wellness-section { margin-bottom: 28px; }
+        .section-heading { text-align: center; margin-bottom: 22px; }
+        .section-heading h2 {
+            font-size: 2.1rem; font-weight: 800; color: #1f3f2a; letter-spacing: -0.5px;
+            display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap; margin: 0;
+        }
+        .section-heading h2 .data-badge {
+            font-size: 0.7rem; font-weight: 700; background: #dce8d0; color: #3a5a3a;
+            padding: 5px 14px; border-radius: 30px; letter-spacing: 0;
+        }
+        .section-heading-line {
+            width: 90px; height: 5px; border-radius: 4px; margin: 12px auto 0;
+            background: linear-gradient(90deg, #3a8a4a, #9fd18f);
+        }
+        .wellness-card { box-shadow: 0 10px 34px rgba(100, 150, 90, 0.12); }
+        .wellness-card.raha-hub { justify-content: flex-start; }
+
+        /* ===== NEW: GRAVITY CARD (inside Claim Ratio) ===== */
+        .gravity-card {
+            width: 100%; margin-top: 14px; padding: 14px 16px; border-radius: 22px; text-align: left;
+            border: 1px solid rgba(120,180,110,0.35); border-left-width: 6px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.75), rgba(235,248,225,0.7));
+            font-size: 0.78rem; color: #2a482a; line-height: 1.5;
+        }
+        .gravity-card .gc-head { font-weight: 800; font-size: 0.92rem; display: flex; align-items: center; gap: 8px; color: #1f3f2a; }
+        .gravity-card .gc-sub { font-size: 0.72rem; color: #5b7a5b; font-weight: 600; margin: 2px 0 8px; }
+        .gravity-card .gc-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
+        .gravity-card .gc-list li { display: flex; gap: 8px; align-items: flex-start; font-weight: 600; }
+        .gravity-card .gc-list li i { margin-top: 3px; color: #3a8a4a; font-size: 0.7rem; width: 14px; text-align: center; }
+        .gravity-card .gc-list b { color: #1f3f2a; font-weight: 800; }
+        .gravity-card .gc-action {
+            margin-top: 10px; padding: 8px 12px; border-radius: 14px; background: rgba(60,140,70,0.1);
+            font-weight: 700; color: #1f4a28; font-size: 0.74rem;
+        }
+        .gravity-card.gc-great { border-left-color: #10b981; }
+        .gravity-card.gc-good  { border-left-color: #4ca85a; }
+        .gravity-card.gc-watch { border-left-color: #f59e0b; background: linear-gradient(135deg, rgba(255,255,255,0.8), rgba(254,243,199,0.55)); }
+        .gravity-card.gc-watch .gc-action { background: rgba(245,158,11,0.15); color: #7a4a05; }
+        .gravity-card.gc-alert { border-left-color: #ef4444; background: linear-gradient(135deg, rgba(255,255,255,0.8), rgba(254,226,226,0.55)); }
+        .gravity-card.gc-alert .gc-action { background: rgba(239,68,68,0.12); color: #7f1d1d; }
+        .gravity-card.gc-empty { border-left-color: #94a3b8; }
+
+        /* ===== NEW: SMART INSIGHTS ===== */
+        .insights-card h3 .insight-sub { font-size: 0.62rem; font-weight: 600; color: #94a3b8; margin-left: 10px; }
+        .insight-item .head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+        .insight-item .tag { font-size: 0.55rem; font-weight: 800; padding: 2px 8px; border-radius: 10px; background: rgba(0,0,0,0.06); color: #475569; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
+        .insight-item .do { font-size: 0.66rem; color: #2d6a2d; margin-top: 6px; font-weight: 700; }
+        .insight-item.clickable { cursor: pointer; }
+        .insight-item.clickable:hover { box-shadow: 0 6px 18px rgba(80,140,80,0.15); }
+
+        /* ===== NEW: POLICY PERIOD BAR ===== */
+        .period-bar {
+            display: flex; align-items: center; flex-wrap: wrap; gap: 12px; justify-content: center;
+            margin: 14px auto 0; padding: 10px 18px; max-width: 1200px;
+            background: rgba(235,248,225,0.7); border: 1px solid rgba(170,215,155,0.5); border-radius: 40px;
+        }
+        .period-bar-label { font-weight: 800; font-size: 0.8rem; color: #2a482a; }
+        .period-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+        .period-btn {
+            border: 1px solid rgba(120,180,110,0.5); background: #fff; color: #2a482a; font-weight: 700; font-size: 0.78rem;
+            padding: 6px 16px; border-radius: 24px; cursor: pointer; transition: all 0.2s; font-family: inherit;
+        }
+        .period-btn:hover { background: #eaf6e1; }
+        .period-btn.active { background: linear-gradient(135deg, #2f7d3e, #4ca85a); color: #fff; border-color: transparent; box-shadow: 0 4px 12px rgba(60,140,70,0.25); }
+        .period-note { font-size: 0.72rem; font-weight: 600; color: #7a4a05; background: #fef3c7; padding: 4px 12px; border-radius: 14px; display: none; }
+        .period-note.show { display: inline-block; }
+
+        /* ===== NEW: COMPARISON PAGE ===== */
+        .cmp-summary { display: grid; gap: 8px; margin-bottom: 16px; }
+        .cmp-summary .cmp-line { background: rgba(235,248,225,0.6); border-left: 4px solid #4ca85a; border-radius: 14px; padding: 10px 14px; font-size: 0.8rem; font-weight: 600; color: #2a482a; }
+        .cmp-summary .cmp-line.warn { border-left-color: #f59e0b; background: rgba(254,243,199,0.5); }
+        .cmp-summary .cmp-line.bad { border-left-color: #ef4444; background: rgba(254,226,226,0.5); }
+        .cmp-table td.metric { font-weight: 800; color: #1f3f2a; text-align: left; }
+        .delta-chip { display: inline-block; padding: 2px 9px; border-radius: 12px; font-size: 0.68rem; font-weight: 800; }
+        .delta-chip.good { background: #d1fae5; color: #065f46; }
+        .delta-chip.bad { background: #fee2e2; color: #991b1b; }
+        .delta-chip.flat { background: #e2e8f0; color: #475569; }
+
+        /* ===== NEW: SINGLE-BRACKET PLACEHOLDER ===== */
+        .si-card.si-card-placeholder { opacity: 0.6; border-style: dashed; }
+        .si-card.si-card-placeholder .si-stat-number { color: #94a3b8; }
+
         /* ===== RESPONSIVE ===== */
         @media (max-width: 1280px) {
             .filter-grid { grid-template-columns: repeat(3, 1fr); }
@@ -2160,8 +2244,10 @@
             .meeting-form-row { grid-template-columns: 1fr; }
             .no-claims-hero .hero-title { font-size: 1.6rem; }
             .monthly-feature { padding: 24px 22px; }
-            .monthly-feature .feature-month { font-size: 2.8rem; }
-            .monthly-feature .feature-title { font-size: 1.4rem; }
+            .monthly-feature .feature-badge { font-size: 1.2rem; padding: 10px 22px; }
+            .monthly-feature .feature-title { font-size: 2.1rem; }
+            .monthly-feature .feature-desc { font-size: 1.1rem; }
+            .section-heading h2 { font-size: 1.6rem; }
         }
 
         @media (max-width: 480px) {
@@ -2173,7 +2259,8 @@
             .sense-node .sense-label { display: none; }
             .sense-node.active .sense-label { display: block; width: 80px; font-size: 0.65rem; }
             .raha-center { width: 76px; height: 76px; }
-            .monthly-feature .feature-month { font-size: 2.2rem; }
+            .monthly-feature .feature-title { font-size: 1.7rem; }
+            .monthly-feature .feature-badge { font-size: 1.05rem; }
             .monthly-feature .feature-highlights { grid-template-columns: 1fr; }
             .filter-grid { grid-template-columns: 1fr; }
             .denied-summary-grid { grid-template-columns: 1fr; }
@@ -2197,6 +2284,14 @@
     <div class="nav-bar">
         <button class="nav-btn active" data-page="page1">🌿 Policy & Wellness</button>
         <button class="nav-btn" data-page="page2">📊 Claims Dashboard</button>
+        <button class="nav-btn" data-page="page3" id="navCompare" style="display:none;">📈 Policy Comparison</button>
+    </div>
+
+    <!-- POLICY PERIOD SWITCHER (visible only when previous policy data exists) -->
+    <div class="period-bar" id="periodBar" style="display:none;">
+        <span class="period-bar-label"><i class="fas fa-calendar-alt"></i> Policy Period</span>
+        <div class="period-buttons" id="periodButtons"></div>
+        <div class="period-note" id="periodNote"></div>
     </div>
 
     <!-- ================================================================
@@ -2253,6 +2348,7 @@
                     <div style="margin-top:12px; font-size:0.75rem; background:#e0edda; padding:6px 20px; border-radius:60px; font-weight:700; color:#3a5a3a;">
                         ⏳ Based on <span id="totalClaimsCount">0</span> claims
                     </div>
+                    <div class="gravity-card gc-empty" id="gravityCard"></div>
                 </div>
 
                 <div class="policy-card">
@@ -2273,36 +2369,28 @@
         </div>
 
         <!-- WELLNESS -->
-        <div class="rec-section">
-            <h2>
-                🧘 Wellness
-                <span style="font-size:1rem; font-weight:600; background:#dce8d0; padding:2px 16px; border-radius:30px;">🌿</span>
-                <span class="data-badge">📊 Based on disease claims data</span>
-            </h2>
+        <div class="wellness-section">
+            <div class="section-heading">
+                <h2>🧘 Wellness <span class="data-badge">📊 Based on disease claims data</span></h2>
+                <div class="section-heading-line"></div>
+            </div>
 
             <div class="wellness-layout">
-                <div class="monthly-feature">
-                    <div>
-                        <div class="feature-badge">
-                            <i class="fas fa-star"></i> This Month's Program
-                        </div>
-                        <div class="feature-month" id="featureMonth">
-                            —
-                            <span class="year" id="featureYear">—</span>
-                        </div>
-                        <div class="feature-title" id="featureTitle">
-                            <i class="fas fa-spa" style="color:#3a8a4a;"></i>
-                            —
-                        </div>
-                        <div class="feature-desc" id="featureDesc">
-                            Loading program details...
-                        </div>
+                <div class="wellness-card monthly-feature">
+                    <div class="feature-inner">
+                        <div class="feature-badge"><i class="fas fa-star"></i> This Month's Program</div>
+                        <div class="feature-month" id="featureMonth"><i class="far fa-calendar-alt"></i> <span id="featureMonthText">—</span></div>
+                        <div class="feature-title" id="featureTitle">—</div>
+                        <div class="feature-desc" id="featureDesc">Loading program details...</div>
                         <div class="feature-highlights" id="featureHighlights"></div>
                     </div>
                 </div>
 
-                <div class="raha-hub">
-                    <div class="hub-title">Wellness Recommendations (As per claims Performance)</div>
+                <div class="wellness-card raha-hub">
+                    <div class="hub-head">
+                        <div class="hub-title">Wellness Recommendations</div>
+                        <div class="hub-sub">(As per claims performance)</div>
+                    </div>
                     <div class="sense-circle" id="senseCircle">
                         <div class="raha-center">
                             <i class="fas fa-leaf raha-icon"></i>
@@ -2397,12 +2485,11 @@
 
         <!-- GRAVITY -->
         <div class="gravity-section">
-            <div class="gravity-line" id="gravityLine">
-                Loading...
+            <div class="gravity-line">
+                At RAHA, every client is a long-term partner &mdash; we are here to keep your people healthy, supported and smiling.
             </div>
             <div class="gravity-sub">
-                Policy optimization reduces costs. Wellness prevention reduces claims.<br />
-                Together, they unlock your next level of savings and performance.
+                We work positively and transparently with every team we serve, turning claims insight into care that clients are happy to come back to.
             </div>
         </div>
 
@@ -2470,7 +2557,7 @@
             </div>
             <div class="prem-right">
                 <div class="prem-detail">
-                    <div class="lbl">Policy Period</div>
+                    <div class="lbl" id="premPeriodLabel">Policy Period</div>
                     <div class="val" id="premPolicyPeriod">-</div>
                 </div>
                 <div class="prem-detail">
@@ -2734,6 +2821,13 @@
             </div>
         </div>
 
+        <!-- SMART INSIGHTS -->
+        <div class="dash-card insights-card" style="margin-bottom:24px;">
+            <h3><i class="fas fa-lightbulb"></i><span class="title-text"> Smart Insights</span>
+                <span class="insight-sub">Auto-generated from the claims currently in view &middot; click an insight to drill in</span></h3>
+            <div class="insight-grid" id="insightsPanel"></div>
+        </div>
+
         <!-- ROW 2: PIE / EMPLOYEE-DEP / SIZE / REIMB -->
         <div class="dash-grid">
             <div class="dash-card col-span-3">
@@ -2841,12 +2935,6 @@
             </div>
         </div>
 
-        <!-- SMART INSIGHTS -->
-        <div class="dash-card" style="margin-bottom:24px;">
-            <h3><i class="fas fa-lightbulb"></i><span class="title-text"> Smart Insights</span></h3>
-            <div class="insight-grid" id="insightsPanel"></div>
-        </div>
-
         <!-- DELIVERY ANALYSIS -->
         <div class="dash-card" style="margin-bottom:24px;">
             <h3><i class="fas fa-baby-carriage"></i><span class="title-text"> Delivery Analysis</span></h3>
@@ -2862,6 +2950,32 @@
     </div>
 
 
+
+    <!-- ================================================================
+         PAGE 3 — POLICY COMPARISON (only when previous policy data exists)
+         ================================================================ -->
+    <div id="page3" class="page">
+        <div class="dash-card" style="margin-bottom:24px;">
+            <h3><i class="fas fa-code-compare"></i><span class="title-text"> Current vs Previous Policy</span></h3>
+            <div class="premium-toggle-pill-filter" id="premiumTogglePage3" style="margin:0 0 14px;">
+                <span class="lbl active" id="lblAsOn3" onclick="setPremiumBasis('asOnDate')">As on Date</span>
+                <div class="sw" id="sw3" onclick="togglePremiumBasis()"><div class="knob"></div></div>
+                <span class="lbl" id="lblEarn3" onclick="setPremiumBasis('earned')">Earned Premium</span>
+            </div>
+            <div class="cmp-summary" id="cmpSummary"></div>
+            <div class="dash-table-wrap" id="cmpTableWrap"></div>
+        </div>
+        <div class="dash-grid">
+            <div class="dash-card col-span-6">
+                <h3><i class="fas fa-percent"></i><span class="title-text"> Claim Ratio by Policy Period</span></h3>
+                <div class="chart-wrapper"><canvas id="cmpRatioChart"></canvas></div>
+            </div>
+            <div class="dash-card col-span-6">
+                <h3><i class="fas fa-rupee-sign"></i><span class="title-text"> Premium vs Claims</span></h3>
+                <div class="chart-wrapper"><canvas id="cmpAmountChart"></canvas></div>
+            </div>
+        </div>
+    </div>
 
     <div class="footer-note">
         🌿 Recommendations driven by claims intelligence 🌿
@@ -3088,6 +3202,8 @@ const totalPremiumValue = parseFloat(initialPremium) || 0;
 const hasEarnedPremium = earnedPremiumValue > 0;
 
 let activePolicies = [], hiddenPolicies = [], usePolicies = false, unknownPolicies = [];
+let allVisiblePolicies = [], policyPeriods = [], currentPeriodKey = 'current', hasPreviousPolicies = false;
+let insightActions = [];
 
 // ================================================================
 // ORGAN SYSTEMS (12) — Wellness hub shows the top 5 by paid amount
@@ -3311,16 +3427,16 @@ function togglePremiumBasis() {
 
 function updatePremiumToggleUI() {
     const isEarned = premiumBasis === 'earned';
-    const sw1 = document.getElementById('sw1');
-    if (sw1) {
-        if (isEarned) { sw1.classList.add('on'); document.getElementById('lblEarn1').classList.add('active'); document.getElementById('lblAsOn1').classList.remove('active'); }
-        else { sw1.classList.remove('on'); document.getElementById('lblAsOn1').classList.add('active'); document.getElementById('lblEarn1').classList.remove('active'); }
-    }
-    const sw2 = document.getElementById('sw2');
-    if (sw2) {
-        if (isEarned) { sw2.classList.add('on'); document.getElementById('lblEarn2').classList.add('active'); document.getElementById('lblAsOn2').classList.remove('active'); }
-        else { sw2.classList.remove('on'); document.getElementById('lblAsOn2').classList.add('active'); document.getElementById('lblEarn2').classList.remove('active'); }
-    }
+    ['1', '2', '3'].forEach(n => {
+        const sw = document.getElementById('sw' + n);
+        const lblEarn = document.getElementById('lblEarn' + n);
+        const lblAsOn = document.getElementById('lblAsOn' + n);
+        if (!sw || !lblEarn || !lblAsOn) return;
+        sw.classList.toggle('on', isEarned);
+        lblEarn.classList.toggle('active', isEarned);
+        lblAsOn.classList.toggle('active', !isEarned);
+    });
+    refreshComparisonIfActive();
 }
 
 function updatePremiumBanner() {
@@ -3469,74 +3585,194 @@ function showPage(pageId) {
     if (pageId === 'page2') {
         document.querySelectorAll('.dropdown-content').forEach(d => d.classList.remove('show'));
     }
+    if (pageId === 'page3') renderComparison();
+    syncPeriodBar();
 }
 
 // ================================================================
 // 8. INIT
 // ================================================================
-document.addEventListener('DOMContentLoaded', function() {
-    if (!rawData || rawData.length === 0) { fullData = []; filteredData = []; }
-    else { fullData = [...rawData]; filteredData = [...rawData]; }
+// ================================================================
+// POLICY PERIODS (current + previous policies in one workbook)
+// ================================================================
+function visiblePolicy(p) { return (p.visibility || 'Active').toLowerCase() !== 'hidden'; }
 
-    if (policiesData && Array.isArray(policiesData) && policiesData.length > 0) {
-        activePolicies = policiesData.filter(p => (p.visibility || 'Active').toLowerCase() !== 'hidden');
-        hiddenPolicies = policiesData.filter(p => (p.visibility || 'Active').toLowerCase() === 'hidden');
-        usePolicies = activePolicies.length > 1;
-    } else {
-        activePolicies = [{
-            policyNumber: 'PRIMARY', policyType: 'ESC',
-            premium: totalPremiumValue, earnedPremium: earnedPremiumValue,
-            lives: 0, startDate: policyStartDate, endDate: policyEndDate, visibility: 'Active'
-        }];
-        usePolicies = false;
-    }
+function fmtMonYr(d) {
+    const x = new Date(d);
+    return isNaN(x.getTime()) ? '' : MONTHS_SHORT[x.getMonth()] + ' ' + x.getFullYear();
+}
 
-    if (perPolicyMember && Array.isArray(perPolicyMember)) perPolicyMemberData = perPolicyMember;
-    if (perPolicyLives && Array.isArray(perPolicyLives)) perPolicyLivesData = perPolicyLives;
+function periodRange(policies) {
+    const s = policies.map(p => new Date(p.startDate)).filter(d => !isNaN(d.getTime())).sort((a, b) => a - b);
+    const e = policies.map(p => new Date(p.endDate)).filter(d => !isNaN(d.getTime())).sort((a, b) => b - a);
+    if (!s.length || !e.length) return '';
+    return fmtMonYr(s[0]) + ' – ' + fmtMonYr(e[0]);
+}
 
-    if (fullData.length > 0 && activePolicies.length > 0) {
-        const activeNums = new Set(activePolicies.map(p => p.policyNumber));
+function buildPolicyPeriods() {
+    const vis = allVisiblePolicies;
+    let cur = vis.filter(p => p.period !== 'Previous');
+    const prev = vis.filter(p => p.period === 'Previous');
+    if (cur.length === 0) cur = vis.filter(p => p.period !== 'Previous' || true);
+    hasPreviousPolicies = prev.length > 0 && vis.some(p => p.period !== 'Previous');
+    policyPeriods = [{ key: 'current', label: 'Current Policy', isCurrent: true, policies: hasPreviousPolicies ? vis.filter(p => p.period !== 'Previous') : vis }];
+    if (!hasPreviousPolicies) return;
+    const groups = {};
+    prev.forEach(p => {
+        const k = (p.startDate || '') + '|' + (p.endDate || '');
+        if (!groups[k]) groups[k] = { key: 'prev:' + k, isCurrent: false, policies: [] };
+        groups[k].policies.push(p);
+    });
+    Object.values(groups)
+        .sort((a, b) => new Date(b.policies[0].startDate) - new Date(a.policies[0].startDate))
+        .forEach(g => {
+            g.label = 'Previous: ' + (periodRange(g.policies) || 'earlier policy');
+            policyPeriods.push(g);
+        });
+}
+
+function rowsForPeriod(key, strict) {
+    const period = policyPeriods.find(p => p.key === key) || policyPeriods[0];
+    const src = rawData || [];
+    if (!hasPreviousPolicies) return [...src];
+    const nums = new Set(period.policies.map(p => p.policyNumber));
+    const allNums = new Set(allVisiblePolicies.map(p => p.policyNumber));
+    return src.filter(r => {
+        const pn = getPolicyNumber(r);
+        if (nums.has(pn)) return true;
+        return !strict && period.isCurrent && !allNums.has(pn);   // unknown policies stay with the current view so the warning banner still works
+    });
+}
+
+function configurePeriodScope() {
+    const period = policyPeriods.find(p => p.key === currentPeriodKey) || policyPeriods[0];
+    currentPeriodKey = period.key;
+    activePolicies = period.policies;
+    usePolicies = activePolicies.length > 1;
+    fullData = rowsForPeriod(currentPeriodKey, false);
+    filteredData = [...fullData];
+    unknownPolicies = [];
+    if (period.isCurrent && fullData.length > 0 && allVisiblePolicies.length > 0) {
+        const nums = new Set(allVisiblePolicies.map(p => p.policyNumber));
         const unknown = new Set();
         fullData.forEach(row => {
             const pn = getPolicyNumber(row);
-            if (pn && pn !== 'PRIMARY' && !activeNums.has(pn)) unknown.add(pn);
+            if (pn && pn !== 'PRIMARY' && !nums.has(pn)) unknown.add(pn);
         });
         unknownPolicies = [...unknown];
     }
+}
 
+function renderPeriodBar() {
+    const wrap = document.getElementById('periodButtons');
+    if (!wrap) return;
+    wrap.innerHTML = policyPeriods.map(p =>
+        '<button class="period-btn' + (p.key === currentPeriodKey ? ' active' : '') + '" data-period="' + escapeHtml(p.key) + '">' +
+        escapeHtml(p.label) + '</button>').join('');
+    wrap.querySelectorAll('.period-btn').forEach(b => b.addEventListener('click', () => selectPolicyPeriod(b.dataset.period)));
+}
+
+function syncPeriodBar() {
+    const bar = document.getElementById('periodBar');
+    const nav = document.getElementById('navCompare');
+    const onCompare = document.getElementById('page3') && document.getElementById('page3').classList.contains('active');
+    if (bar) bar.style.display = (hasPreviousPolicies && !onCompare) ? 'flex' : 'none';
+    if (nav) nav.style.display = hasPreviousPolicies ? '' : 'none';
+}
+
+function updatePeriodUI() {
+    renderPeriodBar();
+    syncPeriodBar();
+    const period = policyPeriods.find(p => p.key === currentPeriodKey);
+    const note = document.getElementById('periodNote');
+    if (note) {
+        if (period && !period.isCurrent) { note.textContent = '📁 Viewing a previous policy — historical data'; note.classList.add('show'); }
+        else { note.textContent = ''; note.classList.remove('show'); }
+    }
+    const lbl = document.getElementById('premPeriodLabel');
+    if (lbl) lbl.textContent = (period && !period.isCurrent) ? 'Policy Period (Previous)' : 'Policy Period';
+}
+
+function selectPolicyPeriod(key) {
+    if (key === currentPeriodKey) return;
+    currentPeriodKey = key;
+    configurePeriodScope();
+    activeSense = null;
+    const panel = document.getElementById('senseDetail');
+    if (panel) panel.classList.remove('open');
+    window._lastPolicyKey = null;
+    refreshPeriodContent(true);
+    updatePeriodUI();
+}
+
+// Everything that depends on which policy period is in view
+function refreshPeriodContent(reset) {
     const tcc = document.getElementById('totalClaimsCount');
     if (tcc) tcc.textContent = fullData.length;
-
-    if (!hasEarnedPremium) {
-        const t1 = document.getElementById('premiumTogglePage1');
-        const t2 = document.getElementById('premiumTogglePage2');
-        if (t1) t1.style.display = 'none';
-        if (t2) t2.style.display = 'none';
-    } else {
-        updatePremiumToggleUI();
-    }
 
     const premEl = document.getElementById('premDisplayAmount');
     if (premEl) premEl.textContent = Number(getActivePremium()).toLocaleString('en-IN');
     updatePremiumBanner();
 
-    if (!hasClaims || fullData.length === 0) {
-        const hero = document.getElementById('noClaimsHero');
-        if (hero) {
+    const hero = document.getElementById('noClaimsHero');
+    if (hero) {
+        if (!hasClaims || fullData.length === 0) {
             hero.classList.add('show');
             document.getElementById('heroPremium').textContent = formatCurrency(getActivePremium());
             document.getElementById('heroLives').textContent = getActiveLives();
             document.getElementById('heroWallets').textContent = perPolicyMemberData.length;
             document.getElementById('heroPolicies').textContent = activePolicies.length;
+        } else {
+            hero.classList.remove('show');
         }
     }
 
-    if (unknownPolicies.length > 0) {
-        const banner = document.getElementById('unknownPolicyBanner');
-        if (banner) {
+    const banner = document.getElementById('unknownPolicyBanner');
+    if (banner) {
+        if (unknownPolicies.length > 0) {
             banner.classList.add('show');
             document.getElementById('unknownPolicyText').textContent = 'The following policy numbers were found in claims but don\'t match any active policy: ' + unknownPolicies.join(', ') + '. These claims are excluded from the combined view.';
+        } else {
+            banner.classList.remove('show');
         }
+    }
+
+    const pgf = document.getElementById('policyFilterGroup');
+    if (pgf) pgf.style.display = usePolicies ? 'flex' : 'none';
+    if (usePolicies) populatePolicyOptions();
+
+    initializeFilters();
+    buildHubSystems();
+    initializeSenseHub();
+    positionSenseNodes();
+    if (reset) resetFilters(); else applyFilters();
+    updatePage1();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    if (policiesData && Array.isArray(policiesData) && policiesData.length > 0) {
+        allVisiblePolicies = policiesData.filter(visiblePolicy);
+        hiddenPolicies = policiesData.filter(p => !visiblePolicy(p));
+    } else {
+        allVisiblePolicies = [{
+            policyNumber: 'PRIMARY', policyType: 'ESC',
+            premium: totalPremiumValue, earnedPremium: earnedPremiumValue,
+            lives: 0, startDate: policyStartDate, endDate: policyEndDate, visibility: 'Active', period: 'Current'
+        }];
+    }
+    buildPolicyPeriods();
+    configurePeriodScope();
+
+    if (perPolicyMember && Array.isArray(perPolicyMember)) perPolicyMemberData = perPolicyMember;
+    if (perPolicyLives && Array.isArray(perPolicyLives)) perPolicyLivesData = perPolicyLives;
+
+    if (!hasEarnedPremium) {
+        ['premiumTogglePage1', 'premiumTogglePage2', 'premiumTogglePage3'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.style.display = 'none';
+        });
+    } else {
+        updatePremiumToggleUI();
     }
 
     if (ageDataAvailable) {
@@ -3553,19 +3789,8 @@ document.addEventListener('DOMContentLoaded', function() {
         if (gcr) gcr.style.display = 'block';
     }
 
-    if (usePolicies) {
-        const pgf = document.getElementById('policyFilterGroup');
-        if (pgf) pgf.style.display = 'flex';
-        populatePolicyOptions();
-    }
-
-    if (fullData.length > 0) initializeFilters();
-
-    buildHubSystems();
-    initializeSenseHub();
-    positionSenseNodes();
-    updatePage1();
-    applyFilters();
+    refreshPeriodContent(false);
+    updatePeriodUI();
 
     document.querySelectorAll('.nav-btn').forEach(btn => {
         btn.addEventListener('click', function() {
@@ -3580,6 +3805,146 @@ document.addEventListener('DOMContentLoaded', function() {
     window.addEventListener('resize', () => positionSenseNodes());
     setTimeout(() => positionSenseNodes(), 200);
 });
+
+// ================================================================
+// POLICY COMPARISON PAGE
+// ================================================================
+function computeStats(rows) {
+    const s = { claims: rows.length, paid: 0, claimed: 0, outstanding: 0, denied: 0, settled: 0, inProcess: 0, claimants: new Set() };
+    rows.forEach(r => {
+        s.claimed += getNumericValue(r, 'claimedAmount');
+        if (isSettled(r)) { s.paid += getNumericValue(r, 'paidAmount'); s.settled++; }
+        else if (isInProcess(r)) { s.outstanding += getNumericValue(r, 'outstandingAmount'); s.inProcess++; }
+        else if (isDenied(r)) s.denied++;
+        const pk = getPersonKey(r);
+        if (pk) s.claimants.add(pk);
+    });
+    s.claimantCount = s.claimants.size;
+    s.liability = s.paid + s.outstanding;
+    return s;
+}
+
+function periodStats(period) {
+    const rows = rowsForPeriod(period.key, true);
+    const st = computeStats(rows);
+    st.premium = period.policies.reduce((a, p) => a + ((premiumBasis === 'earned' && p.earnedPremium > 0) ? p.earnedPremium : (p.premium || 0)), 0);
+    st.lives = period.policies.reduce((a, p) => a + (p.lives || 0), 0);
+    st.ratio = st.premium > 0 ? st.liability / st.premium * 100 : 0;
+    st.avgPaid = st.settled > 0 ? st.paid / st.settled : 0;
+    st.freq = st.lives > 0 ? st.claims / st.lives * 100 : null;
+    const byDis = {};
+    rows.forEach(r => { if (isSettled(r)) { const d = getValue(r, 'disease') || 'Unknown'; byDis[d] = (byDis[d] || 0) + getNumericValue(r, 'paidAmount'); } });
+    const top = Object.entries(byDis).sort((a, b) => b[1] - a[1])[0];
+    st.topDisease = top ? top[0] : null;
+    return st;
+}
+
+function elapsedFraction(dates) {
+    const s = new Date(dates.start), e = new Date(dates.end), g = new Date(generationDate);
+    if ([s, e, g].some(d => isNaN(d.getTime())) || e <= s) return null;
+    return Math.max(0, Math.min(1, (g - s) / (e - s)));
+}
+
+function refreshComparisonIfActive() {
+    const p3 = document.getElementById('page3');
+    if (p3 && p3.classList.contains('active')) renderComparison();
+}
+
+function renderComparison() {
+    const wrap = document.getElementById('cmpTableWrap');
+    if (!wrap || !hasPreviousPolicies) return;
+    const stats = policyPeriods.map(p => ({ p, s: periodStats(p) }));
+    const cur = stats[0].s, prev = stats[1] ? stats[1].s : null;
+
+    const metrics = [
+        { label: 'Premium', f: s => formatCurrency(s.premium), v: s => s.premium, neutral: true },
+        { label: 'Lives Covered', f: s => s.lives ? s.lives.toLocaleString('en-IN') : '—', v: s => s.lives, neutral: true },
+        { label: 'Total Claims', f: s => s.claims.toLocaleString('en-IN'), v: s => s.claims },
+        { label: 'Unique Claimants', f: s => s.claimantCount.toLocaleString('en-IN'), v: s => s.claimantCount },
+        { label: 'Claimed Amount', f: s => formatCurrency(s.claimed), v: s => s.claimed },
+        { label: 'Settled Paid', f: s => formatCurrency(s.paid), v: s => s.paid },
+        { label: 'Outstanding', f: s => formatCurrency(s.outstanding), v: s => s.outstanding },
+        { label: 'Total Liability', f: s => formatCurrency(s.liability), v: s => s.liability },
+        { label: 'Claim Ratio', f: s => s.ratio.toFixed(1) + '%', v: s => s.ratio },
+        { label: 'Avg Paid / Claim', f: s => formatCurrency(s.avgPaid), v: s => s.avgPaid },
+        { label: 'Claims per 100 Lives', f: s => s.freq === null ? '—' : s.freq.toFixed(1), v: s => s.freq === null ? 0 : s.freq },
+        { label: 'Denied Claims', f: s => s.denied.toLocaleString('en-IN'), v: s => s.denied },
+        { label: 'Top Cost Driver', f: s => s.topDisease ? escapeHtml(s.topDisease) : '—', v: null }
+    ];
+
+    function chip(m) {
+        if (!prev || !m.v) return '';
+        const a = m.v(cur), b = m.v(prev);
+        if (!b) return a ? '<span class="delta-chip flat">new</span>' : '<span class="delta-chip flat">—</span>';
+        const pct = (a - b) / b * 100;
+        if (Math.abs(pct) < 0.5) return '<span class="delta-chip flat">≈ 0%</span>';
+        const cls = m.neutral ? 'flat' : (pct > 0 ? 'bad' : 'good');
+        return '<span class="delta-chip ' + cls + '">' + (pct > 0 ? '▲ ' : '▼ ') + Math.abs(pct).toFixed(1) + '%</span>';
+    }
+
+    let html = '<table class="dash-table cmp-table"><thead><tr><th>Metric</th>' +
+        stats.map(x => '<th>' + escapeHtml(x.p.label) + '</th>').join('') +
+        (prev ? '<th>Current vs ' + escapeHtml(stats[1].p.label.replace('Previous: ', 'Prev ')) + '</th>' : '') +
+        '</tr></thead><tbody>';
+    metrics.forEach(m => {
+        html += '<tr><td class="metric">' + m.label + '</td>' +
+            stats.map(x => '<td>' + m.f(x.s) + '</td>').join('') +
+            (prev ? '<td>' + chip(m) + '</td>' : '') + '</tr>';
+    });
+    wrap.innerHTML = html + '</tbody></table>';
+
+    // Rule-based summary
+    const lines = [];
+    const dates = getPeriodDates(policyPeriods[0]);
+    const el = elapsedFraction(dates);
+    if (prev) {
+        const d = cur.ratio - prev.ratio;
+        const sev = d > 10 ? 'bad' : (d > 0 ? 'warn' : '');
+        lines.push({ c: sev, t: 'Claim ratio is <b>' + cur.ratio.toFixed(1) + '%</b> in the current policy vs <b>' + prev.ratio.toFixed(1) + '%</b> in the previous one (' + (d >= 0 ? '+' : '') + d.toFixed(1) + ' pts).' });
+        if (el !== null && el > 0.1 && el < 0.97) {
+            lines.push({ c: 'warn', t: 'The current policy is only <b>' + Math.round(el * 100) + '%</b> through its term, so it is a part-year comparison. At this pace it would finish near <b>' + (cur.ratio / el).toFixed(0) + '%</b>.' });
+        }
+        if (cur.freq !== null && prev.freq !== null) {
+            lines.push({ c: cur.freq > prev.freq ? 'warn' : '', t: 'Claim frequency: <b>' + cur.freq.toFixed(1) + '</b> vs <b>' + prev.freq.toFixed(1) + '</b> claims per 100 lives.' });
+        }
+        if (prev.avgPaid > 0 && cur.avgPaid > 0) {
+            const g = (cur.avgPaid - prev.avgPaid) / prev.avgPaid * 100;
+            if (Math.abs(g) >= 5) lines.push({ c: g > 0 ? 'warn' : '', t: 'Average paid per claim ' + (g > 0 ? 'rose' : 'fell') + ' by <b>' + Math.abs(g).toFixed(0) + '%</b> (' + formatCurrency(prev.avgPaid) + ' → ' + formatCurrency(cur.avgPaid) + ').' });
+        }
+        if (cur.topDisease && prev.topDisease) {
+            lines.push({ c: '', t: cur.topDisease === prev.topDisease ? 'Top cost driver is unchanged: <b>' + escapeHtml(cur.topDisease) + '</b>.' : 'Top cost driver shifted from <b>' + escapeHtml(prev.topDisease) + '</b> to <b>' + escapeHtml(cur.topDisease) + '</b>.' });
+        }
+    }
+    const sum = document.getElementById('cmpSummary');
+    if (sum) sum.innerHTML = lines.map(l => '<div class="cmp-line ' + l.c + '">' + l.t + '</div>').join('');
+
+    // Charts (oldest → newest left to right)
+    const ordered = [...stats].reverse();
+    const labels = ordered.map(x => x.p.isCurrent ? 'Current' : x.p.label.replace('Previous: ', ''));
+    if (typeof Chart === 'undefined') return;
+    ['cmpRatio', 'cmpAmount'].forEach(k => { if (charts[k]) { charts[k].destroy(); charts[k] = null; } });
+    const rc = document.getElementById('cmpRatioChart');
+    if (rc) charts.cmpRatio = new Chart(rc, {
+        type: 'bar',
+        data: { labels, datasets: [{ label: 'Claim ratio %', data: ordered.map(x => +x.s.ratio.toFixed(1)), backgroundColor: ordered.map(x => x.s.ratio > 100 ? '#ef4444' : (x.s.ratio >= 90 ? '#f59e0b' : '#4ca85a')), borderRadius: 10 }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { callback: v => v + '%' } } } }
+    });
+    const ac = document.getElementById('cmpAmountChart');
+    if (ac) charts.cmpAmount = new Chart(ac, {
+        type: 'bar',
+        data: { labels, datasets: [
+            { label: 'Premium', data: ordered.map(x => x.s.premium), backgroundColor: '#9fd18f', borderRadius: 8 },
+            { label: 'Claims (paid + outstanding)', data: ordered.map(x => x.s.liability), backgroundColor: '#3a8a4a', borderRadius: 8 }
+        ] },
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { callback: v => formatCurrencyShort(v) } } },
+            plugins: { tooltip: { callbacks: { label: c => c.dataset.label + ': ' + formatCurrency(c.parsed.y) } } } }
+    });
+}
+
+function getPeriodDates(period) {
+    const p = period.policies[0] || {};
+    return { start: p.startDate, end: p.endDate };
+}
 
 // ================================================================
 // 8a. ORGAN-SYSTEM HUB
@@ -3913,66 +4278,106 @@ function updateSuggestions() {
 }
 
 function updateMonthlyFeature() {
-    if (!wellnessCalendar || wellnessCalendar.length === 0) return;
-    const currentMonth = new Date().getMonth() + 1;
-    const currentYear = new Date().getFullYear();
-    let entry = wellnessCalendar.find(w => String(w.month) === String(currentMonth)) || wellnessCalendar[0];
-    const fm = document.getElementById('featureMonth');
-    if (fm && fm.childNodes.length > 0) fm.childNodes[0].nodeValue = MONTHS[currentMonth - 1] + ' ';
-    document.getElementById('featureYear').textContent = currentYear;
-    document.getElementById('featureTitle').innerHTML = '<i class="fas fa-spa" style="color:#3a8a4a;"></i> ' + (entry.programName || 'Wellness Program');
-    document.getElementById('featureDesc').textContent = entry.description || '';
+    const now = new Date();
+    const mt = document.getElementById('featureMonthText');
+    if (mt) mt.textContent = MONTHS[now.getMonth()] + ' ' + now.getFullYear();
+    const titleEl = document.getElementById('featureTitle');
+    const descEl = document.getElementById('featureDesc');
+    const hl = document.getElementById('featureHighlights');
+    if (!wellnessCalendar || wellnessCalendar.length === 0) {
+        if (titleEl) titleEl.textContent = 'Wellness Program';
+        if (descEl) descEl.textContent = '';
+        if (hl) hl.innerHTML = '';
+        return;
+    }
+    const entry = wellnessCalendar.find(w => String(w.month) === String(now.getMonth() + 1)) || wellnessCalendar[0];
+    if (titleEl) titleEl.textContent = entry.programName || 'Wellness Program';
+    if (descEl) descEl.textContent = entry.description || '';
     const icons = ['fa-spa', 'fa-clipboard-check', 'fa-running', 'fa-heart'];
-    document.getElementById('featureHighlights').innerHTML = (entry.highlights || []).map((h, i) =>
-        '<div class="highlight-item"><i class="fas ' + icons[i % icons.length] + '"></i><span class="text">' + h + '</span></div>').join('');
+    if (hl) hl.innerHTML = (entry.highlights || []).map((h, i) =>
+        '<div class="highlight-item"><i class="fas ' + icons[i % icons.length] + '"></i><span class="text">' + escapeHtml(h) + '</span></div>').join('');
 }
 
+// Smart claim-ratio commentary shown inside the Claim Ratio card
 function updateGravity() {
-    const el = document.getElementById('gravityLine');
+    const el = document.getElementById('gravityCard');
     if (!el) return;
-    const totalPaid = filteredData.reduce((s, r) => s + (isSettled(r) ? getNumericValue(r, 'paidAmount') : 0), 0);
+    const st = computeStats(filteredData);
     const premium = getActivePremium();
-    const outstanding = filteredData.filter(r => isInProcess(r)).reduce((s, r) => s + getNumericValue(r, 'outstandingAmount'), 0);
-    const claimRatio = premium > 0 ? ((totalPaid + outstanding) / premium * 100) : 0;
+    if (filteredData.length === 0 || premium <= 0) {
+        el.className = 'gravity-card gc-empty';
+        el.innerHTML = '<div class="gc-head">🌿 No claims in view</div><div class="gc-sub">Nothing to analyse yet — the ratio will appear as claims arrive.</div>';
+        return;
+    }
+    const dates = getActivePolicyDates();
+    const q = getCurrentQuarter(generationDate, dates.start);
+    const thrAmt = getQuarterThreshold(premium, q.quarter);
+    const thrPct = thrAmt / premium * 100;
+    const ratio = st.liability / premium * 100;
+    const qs = getQuarterStatus(st.liability, thrAmt);
+    let tone = 'gc-good', head = '🌱 On track';
+    if (qs.status === 'critical') { tone = 'gc-alert'; head = '🔴 Above the Q' + q.quarter + ' limit'; }
+    else if (qs.status === 'caution') { tone = 'gc-watch'; head = '⚠️ Approaching the Q' + q.quarter + ' limit'; }
+    else if (ratio < thrPct * 0.5) { tone = 'gc-great'; head = '🌟 Claims well under control'; }
+
+    const items = [];
+    const gap = thrAmt - st.liability;
+    items.push('<li><i class="fas fa-bullseye"></i><span>' + (gap >= 0
+        ? '<b>' + formatCurrencyShort(gap) + '</b> of headroom before the Q' + q.quarter + ' limit (' + thrPct.toFixed(0) + '% of premium).'
+        : '<b>' + formatCurrencyShort(-gap) + '</b> above the Q' + q.quarter + ' limit (' + thrPct.toFixed(0) + '% of premium).') + '</span></li>');
+
+    const el2 = elapsedFraction(dates);
+    if (el2 !== null && el2 >= 0.15 && el2 <= 0.98) {
+        const proj = ratio / el2;
+        items.push('<li><i class="fas fa-chart-line"></i><span>' + Math.round(el2 * 100) + '% of the policy has elapsed — at this pace it closes near <b>' + proj.toFixed(0) + '%</b>.</span></li>');
+    }
+
     const byDisease = {};
-    filteredData.forEach(row => {
-        if (!isSettled(row)) return;
-        const d = getValue(row, 'disease') || 'Unknown';
-        byDisease[d] = (byDisease[d] || 0) + getNumericValue(row, 'paidAmount');
-    });
-    const top3Sum = Object.entries(byDisease).sort((a, b) => b[1] - a[1]).slice(0, 3).reduce((s, [, v]) => s + v, 0);
-    const top3Pct = totalPaid > 0 ? (top3Sum / totalPaid * 100) : 0;
-    let status = 'at target';
-    if (claimRatio < 90) status = 'below budget';
-    else if (claimRatio <= 100) status = 'near limit';
-    else status = 'above budget';
-    el.innerHTML = '<span class="highlight-green">' + formatCurrencyShort(totalPaid) + '</span> in claims managed.<br />' +
-        '<span class="highlight-gold">' + top3Pct.toFixed(1) + '%</span> of paid amount from top 3 cost drivers.<br />' +
-        '<span style="color: #1f3a2a;">Claim ratio at </span>' +
-        '<span style="color: #2d7a3a; font-weight: 800;">' + claimRatio.toFixed(1) + '% — tracking ' + status + '.</span>';
+    filteredData.forEach(r => { if (isSettled(r)) { const d = getValue(r, 'disease') || 'Unknown'; byDisease[d] = (byDisease[d] || 0) + getNumericValue(r, 'paidAmount'); } });
+    const ranked = Object.entries(byDisease).sort((a, b) => b[1] - a[1]);
+    const top3 = ranked.slice(0, 3).reduce((s, x) => s + x[1], 0);
+    if (st.paid > 0 && ranked.length) {
+        items.push('<li><i class="fas fa-layer-group"></i><span>Top 3 cost drivers make up <b>' + (top3 / st.paid * 100).toFixed(0) + '%</b> of paid claims, led by <b>' + escapeHtml(ranked[0][0]) + '</b>.</span></li>');
+    }
+    if (st.outstanding > 0) {
+        items.push('<li><i class="fas fa-hourglass-half"></i><span><b>' + formatCurrencyShort(st.outstanding) + '</b> is still in process (' + st.inProcess + ' claims) and may add <b>' + (st.outstanding / premium * 100).toFixed(1) + ' pts</b> to the ratio.</span></li>');
+    }
+
+    let action = 'Keep wellness programmes running to protect the ratio.';
+    if (ranked.length) {
+        const e = preventionContent[ranked[0][0]] || preventionContent[String(ranked[0][0]).trim()];
+        if (e && e.prevent) action = 'Focus on ' + escapeHtml(ranked[0][0]) + ': ' + escapeHtml(String(e.prevent).slice(0, 110)) + (String(e.prevent).length > 110 ? '…' : '');
+        else action = 'Focus preventive programmes on ' + escapeHtml(ranked[0][0]) + ', the biggest cost driver.';
+    }
+
+    el.className = 'gravity-card ' + tone;
+    el.innerHTML = '<div class="gc-head">' + head + '</div>' +
+        '<div class="gc-sub">Claim ratio ' + ratio.toFixed(1) + '% · Q' + q.quarter + ' threshold ' + thrPct.toFixed(0) + '%</div>' +
+        '<ul class="gc-list">' + items.join('') + '</ul>' +
+        '<div class="gc-action">💡 ' + action + '</div>';
 }
 
 // ================================================================
 // 11. FILTER INIT
 // ================================================================
 function initializeFilters() {
-    allDiseases = [...new Set(rawData.map(r => getValue(r, 'disease')).filter(Boolean))].sort();
-    allRelations = [...new Set(rawData.map(r => normalizeRelation(getValue(r, 'relation'))).filter(Boolean))].sort();
-    allClaimTypes = [...new Set(rawData.map(r => getValue(r, 'claimType')).filter(Boolean))].sort();
-    allHospitals = [...new Set(rawData.map(r => getValue(r, 'hospital')).filter(Boolean))].sort();
-    allSumInsuredValues = [...new Set(rawData.map(r => getNumericValue(r, 'sumInsured')).filter(v => v > 0))].sort((a, b) => a - b);
+    allDiseases = [...new Set(fullData.map(r => getValue(r, 'disease')).filter(Boolean))].sort();
+    allRelations = [...new Set(fullData.map(r => normalizeRelation(getValue(r, 'relation'))).filter(Boolean))].sort();
+    allClaimTypes = [...new Set(fullData.map(r => getValue(r, 'claimType')).filter(Boolean))].sort();
+    allHospitals = [...new Set(fullData.map(r => getValue(r, 'hospital')).filter(Boolean))].sort();
+    allSumInsuredValues = [...new Set(fullData.map(r => getNumericValue(r, 'sumInsured')).filter(v => v > 0))].sort((a, b) => a - b);
     const yearSet = new Set();
-    rawData.forEach(r => { const p = getDateParts(r); if (p) yearSet.add(p.year); });
+    fullData.forEach(r => { const p = getDateParts(r); if (p) yearSet.add(p.year); });
     availableYears = [...yearSet].sort();
     if (ageDataAvailable) {
         const ageSet = new Set();
-        rawData.forEach(r => { const b = getAgeBand(r); if (b) ageSet.add(b); });
+        fullData.forEach(r => { const b = getAgeBand(r); if (b) ageSet.add(b); });
         availableAgeBands = AGE_BANDS.filter(b => ageSet.has(b.key));
         populateAgeOptions();
     }
     if (columnMapping['gender']) {
         const gSet = new Set();
-        rawData.forEach(r => { const g = getRowGender(r); if (g) gSet.add(g); });
+        fullData.forEach(r => { const g = getRowGender(r); if (g) gSet.add(g); });
         availableGenders = [...gSet].sort();
         populateGenderOptions();
     }
@@ -3987,7 +4392,7 @@ function initializeFilters() {
     if (statusContainer) {
         statusContainer.innerHTML = ['Settled', 'In Process', 'Denied'].map(opt => {
             let count = 0;
-            rawData.forEach(r => {
+            fullData.forEach(r => {
                 let s = '';
                 if (isSettled(r)) s = 'Settled';
                 else if (isInProcess(r)) s = 'In Process';
@@ -4000,6 +4405,8 @@ function initializeFilters() {
         }).join('');
     }
 
+    if (window._filterListenersBound) return;
+    window._filterListenersBound = true;
     const claimIdSearch = document.getElementById('claimIdSearch');
     if (claimIdSearch) claimIdSearch.addEventListener('input', debounce(applyFilters, 200));
 
@@ -4019,7 +4426,7 @@ function populatePolicyOptions() {
     if (!c) return;
     c.innerHTML = activePolicies.map(p => {
         let count = 0;
-        rawData.forEach(r => { if (getPolicyNumber(r) === p.policyNumber) count++; });
+        fullData.forEach(r => { if (getPolicyNumber(r) === p.policyNumber) count++; });
         return '<div class="dropdown-option"><div style="display:flex;align-items:center;gap:6px;">' +
             '<input type="checkbox" value="' + p.policyNumber + '" onchange="togglePolicyFilter(\'' + p.policyNumber.replace(/'/g, "\\'") + '\', this.checked)">' +
             '<span>' + p.policyNumber + ' (' + p.policyType + ')</span></div><span class="option-stats">' + count + '</span></div>';
@@ -4031,7 +4438,7 @@ function populateAgeOptions() {
     if (!c) return;
     c.innerHTML = availableAgeBands.map(b => {
         let count = 0;
-        rawData.forEach(r => { if (getAgeBand(r) === b.key) count++; });
+        fullData.forEach(r => { if (getAgeBand(r) === b.key) count++; });
         return '<div class="dropdown-option"><div style="display:flex;align-items:center;gap:6px;">' +
             '<input type="checkbox" value="' + b.key + '" ' + (filterState.ageBands.includes(b.key) ? 'checked' : '') + ' onchange="toggleAgeFilter(\'' + b.key + '\', this.checked)">' +
             '<span>' + b.label + '</span></div><span class="option-stats">' + count + '</span></div>';
@@ -4043,7 +4450,7 @@ function populateGenderOptions() {
     if (!c) return;
     c.innerHTML = availableGenders.map(g => {
         let count = 0;
-        rawData.forEach(r => { if (getRowGender(r) === g) count++; });
+        fullData.forEach(r => { if (getRowGender(r) === g) count++; });
         return '<div class="dropdown-option"><div style="display:flex;align-items:center;gap:6px;">' +
             '<input type="checkbox" value="' + g + '" ' + (filterState.genders.includes(g) ? 'checked' : '') + ' onchange="toggleGenderFilter(\'' + g + '\', this.checked)">' +
             '<span>' + g + '</span></div><span class="option-stats">' + count + '</span></div>';
@@ -4056,7 +4463,7 @@ function populateFilterOptions(type, options) {
     if (options.length === 0) { c.innerHTML = '<div class="dropdown-option" style="color:#94a3b8;">No data</div>'; return; }
     c.innerHTML = options.map(opt => {
         let count = 0;
-        rawData.forEach(r => {
+        fullData.forEach(r => {
             let m = false;
             if (type === 'disease') m = getValue(r, 'disease') === opt;
             else if (type === 'relation') m = normalizeRelation(getValue(r, 'relation')) === opt;
@@ -4076,7 +4483,7 @@ function populateYearOptions() {
     if (availableYears.length === 0) { c.innerHTML = '<div class="dropdown-option" style="color:#94a3b8;">No years</div>'; return; }
     c.innerHTML = availableYears.map(year => {
         let count = 0;
-        rawData.forEach(r => { const p = getDateParts(r); if (p && p.year === year) count++; });
+        fullData.forEach(r => { const p = getDateParts(r); if (p && p.year === year) count++; });
         return '<div class="dropdown-option"><div style="display:flex;align-items:center;gap:6px;">' +
             '<input type="checkbox" value="' + year + '" ' + (filterState.years.includes(year) ? 'checked' : '') + ' onchange="toggleYearFilter(' + year + ', this.checked)">' +
             '<span>' + year + '</span></div><span class="option-stats">' + count + '</span></div>';
@@ -4089,7 +4496,7 @@ function populateMonthOptions() {
     c.innerHTML = MONTHS_SHORT.map((month, i) => {
         const mn = i + 1;
         let count = 0;
-        rawData.forEach(r => { const p = getDateParts(r); if (p && p.month === mn) count++; });
+        fullData.forEach(r => { const p = getDateParts(r); if (p && p.month === mn) count++; });
         return '<div class="dropdown-option"><div style="display:flex;align-items:center;gap:6px;">' +
             '<input type="checkbox" value="' + mn + '" ' + (filterState.months.includes(mn) ? 'checked' : '') + ' onchange="toggleMonthFilter(' + mn + ', this.checked)">' +
             '<span>' + month + '</span></div><span class="option-stats">' + count + '</span></div>';
@@ -4102,7 +4509,7 @@ function populateSumInsuredOptions() {
     if (allSumInsuredValues.length === 0) { c.innerHTML = '<div class="dropdown-option" style="color:#94a3b8;">No wallet data</div>'; return; }
     c.innerHTML = allSumInsuredValues.map(si => {
         let count = 0;
-        rawData.forEach(r => { if (getNumericValue(r, 'sumInsured') === si) count++; });
+        fullData.forEach(r => { if (getNumericValue(r, 'sumInsured') === si) count++; });
         return '<div class="dropdown-option"><div style="display:flex;align-items:center;gap:6px;">' +
             '<input type="checkbox" value="' + si + '" ' + (filterState.sumInsured.includes(si) ? 'checked' : '') + ' onchange="toggleSumInsuredFilter(' + si + ', this.checked)">' +
             '<span>' + formatCurrency(si) + '</span></div><span class="option-stats">' + count + '</span></div>';
@@ -5171,9 +5578,15 @@ function updateTop10FromMap(containerId, badgeId, map, totalUnique, filterType) 
 // ================================================================
 // 26. INSIGHTS
 // ================================================================
+function runInsightAction(i) {
+    const fn = insightActions[i];
+    if (typeof fn === 'function') fn();
+}
+
 function generate8Insights() {
     const panel = document.getElementById('insightsPanel');
     if (!panel) return;
+    insightActions = [];
     if (filteredData.length === 0) {
         panel.innerHTML =
             '<div class="insight-item green"><div class="title">🎉 No Claims</div><div class="text">Policy is claim-free</div></div>' +
@@ -5182,31 +5595,146 @@ function generate8Insights() {
             '<div class="insight-item teal"><div class="title">👥 Coverage Active</div><div class="text">All lives protected</div></div>';
         return;
     }
-    const agg = aggCache;
+    const rows = filteredData;
+    const st = computeStats(rows);
     const premium = getActivePremium();
-    const claimRatio = premium > 0 ? ((agg.totalPaid + agg.totalOutstanding) / premium * 100) : 0;
-    const insights = [];
+    const ratio = premium > 0 ? st.liability / premium * 100 : 0;
+    const dates = getActivePolicyDates();
+    const el = elapsedFraction(dates);
+    const ins = [];
+    const add = o => ins.push(o);
+    const pct = (a, b) => b > 0 ? (a / b * 100) : 0;
+
+    // 1. Claim ratio vs quarterly threshold
     if (premium > 0) {
-        const status = claimRatio < 90 ? 'Good' : (claimRatio <= 100 ? 'Caution' : 'Critical');
-        const color = claimRatio < 90 ? 'green' : (claimRatio <= 100 ? 'amber' : 'red');
-        insights.push({ color, icon: '📊', title: 'Claim Ratio: ' + claimRatio.toFixed(1) + '%', text: 'Status: ' + status });
+        const q = getCurrentQuarter(generationDate, dates.start);
+        const thr = getQuarterThreshold(premium, q.quarter);
+        const qs = getQuarterStatus(st.liability, thr);
+        const color = qs.status === 'critical' ? 'red' : (qs.status === 'caution' ? 'amber' : 'green');
+        add({ score: qs.status === 'critical' ? 100 : (qs.status === 'caution' ? 80 : 45), color, icon: '📊', tag: 'Ratio',
+            title: 'Claim ratio ' + ratio.toFixed(1) + '%',
+            text: 'Q' + q.quarter + ' limit is ' + (thr / premium * 100).toFixed(0) + '% — ' + qs.label.replace(/^[^A-Za-z]+/, '') + '.',
+            todo: qs.status === 'good' ? null : 'Review the top cost drivers below.' });
     }
-    const topDisease = [...agg.topUniqueDisease.entries()].sort((a, b) => b[1].size - a[1].size)[0];
-    if (topDisease) insights.push({ color: 'purple', icon: '🩺', title: 'Top Disease: ' + topDisease[0].substring(0, 28), text: topDisease[1].size + ' unique claimants' });
-    if (agg.totalOutstanding > 0) insights.push({ color: 'amber', icon: '⏳', title: 'Pending Liability', text: formatCurrency(agg.totalOutstanding) + ' outstanding' });
-    if (agg.statusCounts.denied > 0) insights.push({ color: 'red', icon: '❌', title: 'Denied: ' + agg.statusCounts.denied, text: 'Review denial reasons' });
-    if (perPolicyMemberData && perPolicyMemberData.length > 0) {
-        insights.push({ color: 'green', icon: '✅', title: 'Wallet Utilization', text: perPolicyMemberData.length + ' bracket' + (perPolicyMemberData.length !== 1 ? 's' : '') + ' across ' + activePolicies.length + ' polic' + (activePolicies.length > 1 ? 'ies' : 'y') });
+    // 2. Pace projection
+    if (premium > 0 && el !== null && el >= 0.15 && el <= 0.98) {
+        const proj = ratio / el;
+        add({ score: proj > 100 ? 95 : (proj > 85 ? 70 : 35), color: proj > 100 ? 'red' : (proj > 85 ? 'amber' : 'teal'), icon: '📈', tag: 'Projection',
+            title: 'Year-end projection ≈ ' + proj.toFixed(0) + '%',
+            text: Math.round(el * 100) + '% of the policy elapsed; current pace extrapolated to full term.',
+            todo: proj > 100 ? 'Act early — mid-term plan needed.' : null });
     }
-    if (perPolicyLivesData && perPolicyLivesData.length > 0) {
-        const empCount = perPolicyLivesData.filter(l => l.relation === 'self' || l.relation === 'employee').reduce((s, l) => s + l.count, 0);
-        const totalLives = perPolicyLivesData.reduce((s, l) => s + l.count, 0);
-        const depPct = totalLives > 0 ? (((totalLives - empCount) / totalLives) * 100) : 0;
-        insights.push({ color: 'teal', icon: '👥', title: 'Lives Distribution', text: depPct.toFixed(1) + '% dependents covered' });
+    // 3. Cost concentration
+    const byDis = {};
+    rows.forEach(r => { if (isSettled(r)) { const d = getValue(r, 'disease') || 'Unknown'; byDis[d] = (byDis[d] || 0) + getNumericValue(r, 'paidAmount'); } });
+    const disRank = Object.entries(byDis).sort((a, b) => b[1] - a[1]);
+    if (disRank.length && st.paid > 0) {
+        const top3 = disRank.slice(0, 3).reduce((s, x) => s + x[1], 0);
+        const share = pct(top3, st.paid);
+        const top = disRank[0][0];
+        add({ score: share > 60 ? 75 : 50, color: 'purple', icon: '🩺', tag: 'Cost drivers',
+            title: 'Top 3 diseases = ' + share.toFixed(0) + '% of paid',
+            text: 'Led by ' + top + ' (' + formatCurrencyShort(disRank[0][1]) + ').',
+            todo: 'Click to filter on ' + top.substring(0, 24) + '.',
+            fn: () => applyCrossFilter('disease', top) });
     }
-    panel.innerHTML = insights.slice(0, 8).map(i =>
-        '<div class="insight-item ' + i.color + '"><div class="title">' + i.icon + ' ' + i.title + '</div><div class="text">' + i.text + '</div></div>'
-    ).join('');
+    // 4. Outstanding liability
+    if (st.outstanding > 0) {
+        add({ score: pct(st.outstanding, st.liability) > 25 ? 78 : 55, color: 'amber', icon: '⏳', tag: 'Liability',
+            title: formatCurrencyShort(st.outstanding) + ' still outstanding',
+            text: st.inProcess + ' claims in process — ' + pct(st.outstanding, st.liability).toFixed(0) + '% of total liability.',
+            todo: 'Ratio can still move by ' + (premium > 0 ? (st.outstanding / premium * 100).toFixed(1) : '0') + ' pts.' });
+    }
+    // 5. Denials
+    if (st.denied > 0) {
+        const noReason = rows.filter(r => isDenied(r) && !String(getValue(r, 'deniedReason') || '').trim()).length;
+        add({ score: pct(st.denied, st.claims) > 10 ? 72 : 52, color: 'red', icon: '❌', tag: 'Denials',
+            title: st.denied + ' denied (' + pct(st.denied, st.claims).toFixed(1) + '%)',
+            text: noReason > 0 ? noReason + ' denied claims have no reason recorded.' : 'Every denial has a recorded reason.',
+            todo: 'Click to review denials.', fn: () => showDeniedClaims() });
+    }
+    // 6. High-value claims
+    const HV = 100000;
+    const hv = rows.filter(r => isSettled(r) && getNumericValue(r, 'paidAmount') >= HV);
+    if (hv.length > 0 && st.paid > 0) {
+        const hvPaid = hv.reduce((s, r) => s + getNumericValue(r, 'paidAmount'), 0);
+        add({ score: pct(hvPaid, st.paid) > 40 ? 74 : 48, color: 'rose', icon: '💎', tag: 'High value',
+            title: hv.length + ' claims of ₹1L+',
+            text: 'They carry ' + pct(hvPaid, st.paid).toFixed(0) + '% of all paid amount.' });
+    }
+    // 7. Repeat claimants
+    const perPerson = {};
+    rows.forEach(r => { const k = getPersonKey(r); if (k) perPerson[k] = (perPerson[k] || 0) + 1; });
+    const repeat = Object.values(perPerson).filter(n => n >= 3).length;
+    if (repeat > 0) {
+        add({ score: 60, color: 'blue', icon: '🔁', tag: 'Repeat',
+            title: repeat + ' member' + (repeat > 1 ? 's' : '') + ' with 3+ claims',
+            text: 'Frequent claimants — candidates for chronic-care or case management.' });
+    }
+    // 8. Cashless vs reimbursement
+    let cashless = 0, reimb = 0;
+    rows.forEach(r => { const c = String(getValue(r, 'claimType') || '').toLowerCase(); if (c.includes('cashless')) cashless++; else if (c.includes('reimb')) reimb++; });
+    if (cashless + reimb >= 5) {
+        const rs = pct(reimb, cashless + reimb);
+        add({ score: rs > 40 ? 58 : 38, color: 'teal', icon: '🏥', tag: 'Channel',
+            title: rs.toFixed(0) + '% reimbursement claims',
+            text: rs > 40 ? 'High reimbursement share — promote network hospitals for cashless care.' : 'Most claims go through the cashless network.' });
+    }
+    // 9. Dependents share
+    const depRows = rows.filter(r => { const rel = String(normalizeRelation(getValue(r, 'relation')) || '').toLowerCase(); return rel && rel !== 'self' && rel !== 'employee'; });
+    if (depRows.length > 0) {
+        const dPaid = depRows.reduce((s, r) => s + (isSettled(r) ? getNumericValue(r, 'paidAmount') : 0), 0);
+        add({ score: 46, color: 'teal', icon: '👨‍👩‍👧', tag: 'Dependents',
+            title: pct(depRows.length, rows.length).toFixed(0) + '% claims from dependents',
+            text: 'They account for ' + pct(dPaid, st.paid).toFixed(0) + '% of paid amount.' });
+    }
+    // 10. Age band
+    if (typeof ageDataAvailable !== 'undefined' && ageDataAvailable) {
+        const byAge = {};
+        rows.forEach(r => { const b = getAgeBand(r); if (b && isSettled(r)) byAge[b] = (byAge[b] || 0) + getNumericValue(r, 'paidAmount'); });
+        const ar = Object.entries(byAge).sort((a, b) => b[1] - a[1]);
+        if (ar.length && st.paid > 0 && pct(ar[0][1], st.paid) >= 30) {
+            add({ score: 44, color: 'purple', icon: '🎂', tag: 'Age',
+                title: 'Age ' + ar[0][0] + ' drives ' + pct(ar[0][1], st.paid).toFixed(0) + '% of paid', text: 'Target health checks at this age group.' });
+        }
+    }
+    // 11. Peak month
+    const byMonth = {};
+    rows.forEach(r => { const p = getDateParts(r); if (p) byMonth[p.year + '-' + p.month] = (byMonth[p.year + '-' + p.month] || 0) + 1; });
+    const mk = Object.entries(byMonth).sort((a, b) => b[1] - a[1]);
+    if (mk.length >= 3 && st.claims >= 12) {
+        const avg = st.claims / mk.length;
+        if (mk[0][1] >= avg * 1.5) {
+            const [y, m] = mk[0][0].split('-');
+            add({ score: 42, color: 'blue', icon: '📅', tag: 'Seasonality',
+                title: 'Peak month: ' + MONTHS_SHORT[m - 1] + ' ' + y, text: mk[0][1] + ' claims — ' + (mk[0][1] / avg).toFixed(1) + '× the monthly average.' });
+        }
+    }
+    // 12. Hospital concentration
+    const byHosp = {};
+    rows.forEach(r => { const h = getValue(r, 'hospital'); if (h) byHosp[h] = (byHosp[h] || 0) + 1; });
+    const hr = Object.entries(byHosp).sort((a, b) => b[1] - a[1]);
+    const hTotal = Object.values(byHosp).reduce((s, n) => s + n, 0);
+    if (hr.length && hTotal >= 10 && pct(hr[0][1], hTotal) >= 25) {
+        const hn = hr[0][0];
+        add({ score: 56, color: 'gray', icon: '🏨', tag: 'Hospital',
+            title: pct(hr[0][1], hTotal).toFixed(0) + '% of claims at one hospital', text: hn.substring(0, 40) + ' — consider a tariff review.',
+            todo: 'Click to filter on this hospital.', fn: () => applyCrossFilter('hospital', hn) });
+    }
+    // Fallback: healthy overview
+    if (ins.length < 4) {
+        add({ score: 10, color: 'green', icon: '✅', tag: 'Overview', title: st.claims + ' claims in view',
+            text: formatCurrencyShort(st.paid) + ' settled across ' + st.claimantCount + ' members.' });
+    }
+
+    const top = ins.sort((a, b) => b.score - a.score).slice(0, 8);
+    panel.innerHTML = top.map((i, n) => {
+        insightActions[n] = i.fn || null;
+        return '<div class="insight-item ' + i.color + (i.fn ? ' clickable' : '') + '"' + (i.fn ? ' onclick="runInsightAction(' + n + ')"' : '') + '>' +
+            '<div class="head"><div class="title">' + i.icon + ' ' + escapeHtml(i.title) + '</div><span class="tag">' + i.tag + '</span></div>' +
+            '<div class="text">' + escapeHtml(i.text) + '</div>' +
+            (i.todo ? '<div class="do">' + escapeHtml(i.todo) + '</div>' : '') + '</div>';
+    }).join('');
 }
 
 // ================================================================
@@ -5234,7 +5762,7 @@ function updateSICards() {
     });
     const agg = aggCache;
     const sortedBrackets = Object.values(mergedBySI).sort((a, b) => a.sumInsured - b.sumInsured);
-    container.innerHTML = sortedBrackets.map(bracket => {
+    let cardsHtml = sortedBrackets.map(bracket => {
         const targetSI = bracket.sumInsured;
         const totalLives = bracket.lives;
         const bracketAgg = agg.walletBracketCounts[targetSI];
@@ -5270,6 +5798,25 @@ function updateSICards() {
                     '</div>') +
             '</div></div>';
     }).join('');
+
+    // Only one bracket? Show a matching placeholder card with zeros so the section stays balanced
+    if (sortedBrackets.length === 1) {
+        cardsHtml += '<div class="si-card si-card-placeholder">' +
+            '<div class="si-card-header"><div><h4>₹0</h4></div><div class="si-card-badge">0 Lives</div></div>' +
+            '<div class="si-card-body">' +
+                '<div class="si-stats-row">' +
+                    '<div class="si-stat-block"><div class="si-stat-number">0</div><div class="si-stat-label">Claimants</div><div class="si-progress-bar"><div class="si-progress-fill green" style="width:0%"></div></div></div>' +
+                    '<div class="si-stat-block"><div class="si-stat-number">0.0%</div><div class="si-stat-label">Claim Rate</div></div>' +
+                    '<div class="si-stat-block"><div class="si-stat-number">0.0%</div><div class="si-stat-label">Payout Ratio</div></div>' +
+                '</div>' +
+                '<div class="si-metrics-grid">' +
+                    '<div class="si-metric-item"><div class="si-metric-value">₹0</div><div class="si-metric-label">Avg Claimed</div></div>' +
+                    '<div class="si-metric-item"><div class="si-metric-value">₹0</div><div class="si-metric-label">Avg Paid</div></div>' +
+                    '<div class="si-metric-item"><div class="si-metric-value">0</div><div class="si-metric-label">Claimants</div></div>' +
+                '</div>' +
+            '</div></div>';
+    }
+    container.innerHTML = cardsHtml;
 }
 
 function showClaimantsDetailsSafe(label, dataId) {

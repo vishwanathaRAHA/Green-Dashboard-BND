@@ -435,6 +435,7 @@ function uploadFile(data) {
       startDate: String(p.startDate || '').trim(),
       endDate: String(p.endDate || '').trim(),
       visibility: 'Active',
+      period: String(p.period || '').toLowerCase() === 'previous' ? 'Previous' : 'Current',
       walletBrackets: Array.isArray(p.walletBrackets) ? p.walletBrackets.map(wb => ({
         sumInsured: parseFloat(wb.sumInsured) || 0,
         lives: parseInt(wb.lives) || 0
@@ -451,6 +452,24 @@ function uploadFile(data) {
         others: parseInt(p.livesDistribution.others) || 0
       } : null
     }));
+
+    // ---- Previous policy period checks ----
+    const previousPolicies = processedPolicies.filter(p => p.period === 'Previous');
+    if (previousPolicies.length > 0) {
+      if (!processedPolicies.some(p => p.period === 'Current')) {
+        throw new Error('Please add at least one current policy along with the previous policy.');
+      }
+      if (hasClaims && !parsedData.columnMapping['policyNumber']) {
+        throw new Error('To show previous policy data, the Excel needs a "Policy Number" column so each claim can be matched to the right policy period.');
+      }
+      const seenNumbers = {};
+      processedPolicies.forEach(p => {
+        if (seenNumbers[p.policyNumber]) {
+          throw new Error('Policy number "' + p.policyNumber + '" is used more than once. Each current and previous policy needs its own Policy Number.');
+        }
+        seenNumbers[p.policyNumber] = true;
+      });
+    }
 
     let finalClientId = clientIdInput;
     if (!finalClientId) {
@@ -518,7 +537,11 @@ function uploadFile(data) {
     }
 
     let totalPremium = 0, totalEarned = 0;
-    processedPolicies.forEach(p => { totalPremium += p.premium; totalEarned += p.earnedPremium; });
+    processedPolicies.forEach(p => {
+      if (p.period === 'Previous') return;
+      totalPremium += p.premium;
+      totalEarned += p.earnedPremium;
+    });
 
     const dashboardData = {
       data: parsedData.data,
@@ -574,6 +597,7 @@ function uploadFile(data) {
         uniqueICDCount: uniqueICDs.length,
         newICDCount: newICDsDetected.length,
         policyCount: processedPolicies.length,
+        previousPolicyCount: previousPolicies.length,
         unknownPolicyCount: unknownPolicies.length,
         ageDataAvailable: ageDataAvailable
       }
@@ -894,7 +918,7 @@ function getOrCreatePoliciesSheet(sheetId) {
   let pSheet = ss.getSheetByName('Policies');
   if (!pSheet) {
     pSheet = ss.insertSheet('Policies');
-    pSheet.appendRow(['Policy Number', 'Policy Type', 'Premium', 'Earned Premium', 'Lives', 'Start Date', 'End Date', 'Visibility']);
+    pSheet.appendRow(['Policy Number', 'Policy Type', 'Premium', 'Earned Premium', 'Lives', 'Start Date', 'End Date', 'Visibility', 'Period']);
     pSheet.setFrozenRows(1);
   }
   return pSheet;
@@ -902,6 +926,9 @@ function getOrCreatePoliciesSheet(sheetId) {
 
 function writePoliciesToSheet(sheetId, policies) {
   const pSheet = getOrCreatePoliciesSheet(sheetId);
+  // Sheets created before the previous-policy feature only have 8 columns: add the Period column
+  if (pSheet.getMaxColumns() < 9) pSheet.insertColumnsAfter(pSheet.getMaxColumns(), 9 - pSheet.getMaxColumns());
+  if (String(pSheet.getRange(1, 9).getValue() || '').trim() === '') pSheet.getRange(1, 9).setValue('Period');
   const lastRow = pSheet.getLastRow();
   if (lastRow > 1) pSheet.deleteRows(2, lastRow - 1);
 
@@ -914,16 +941,17 @@ function writePoliciesToSheet(sheetId, policies) {
       p.lives || 0,
       p.startDate || '',
       p.endDate || '',
-      p.visibility || 'Active'
+      p.visibility || 'Active',
+      p.period === 'Previous' ? 'Previous' : 'Current'
     ]);
-    pSheet.getRange(2, 1, rows.length, 8).setValues(rows);
+    pSheet.getRange(2, 1, rows.length, 9).setValues(rows);
   }
 }
 
 function readPolicies(sheetId) {
   const fallback = [{
     policyNumber: 'PRIMARY', policyType: 'ESC', premium: 0, earnedPremium: 0,
-    lives: 0, startDate: '', endDate: '', visibility: 'Active'
+    lives: 0, startDate: '', endDate: '', visibility: 'Active', period: 'Current'
   }];
   try {
     const ss = SpreadsheetApp.openById(sheetId);
@@ -942,7 +970,8 @@ function readPolicies(sheetId) {
         lives: parseInt(data[i][4]) || 0,
         startDate: String(data[i][5] || ''),
         endDate: String(data[i][6] || ''),
-        visibility: String(data[i][7] || 'Active')
+        visibility: String(data[i][7] || 'Active'),
+        period: String(data[i][8] || '').toLowerCase() === 'previous' ? 'Previous' : 'Current'
       });
     }
     return result.length > 0 ? result : fallback;
