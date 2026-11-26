@@ -1438,10 +1438,9 @@ function getMappingSheet_() {
 
 // ============ HOME PAGE PERMISSIONS ============
 // Who may manage dashboards from the Home page is controlled by the "Admins" tab of the Client_Mapping sheet:
-//   Email | Role     Role "Admin"  = can delete AND activate/deactivate
-//                    Role "Editor" = can activate/deactivate only
+//   Email | Role     Role "Admin" or "Editor" = can activate/deactivate dashboards
 //   anyone not listed = view / open only
-// SUPER_ADMIN_EMAIL is always an Admin (cannot be locked out). Changing it requires editing this file.
+// DELETE is allowed ONLY for SUPER_ADMIN_EMAIL (always has full access). Changing it requires editing this file.
 const SUPER_ADMIN_EMAIL = 'vishwanatha@rahainsure.com';
 const ADMINS_SHEET_NAME = 'Admins';
 
@@ -1449,7 +1448,7 @@ function getAdminsSheet_(ss) {
   let sh = ss.getSheetByName(ADMINS_SHEET_NAME);
   if (sh) return sh;
   sh = ss.insertSheet(ADMINS_SHEET_NAME);
-  sh.appendRow(['Email', 'Role (Admin = delete + status, Editor = status only)']);
+  sh.appendRow(['Email', 'Role (Admin or Editor = can activate/deactivate; delete is owner-only)']);
   sh.appendRow([SUPER_ADMIN_EMAIL, 'Admin']);
   sh.getRange(2, 2, 200, 1).setDataValidation(
     SpreadsheetApp.newDataValidation().requireValueInList(['Admin', 'Editor'], true).setAllowInvalid(false).build());
@@ -1479,7 +1478,8 @@ function getRoleForEmail_(ss, email) {
 function getPermissions_(ss) {
   const email = getCurrentUserEmail_();
   const role = ss ? getRoleForEmail_(ss, email) : (email === SUPER_ADMIN_EMAIL.toLowerCase() ? 'Admin' : 'None');
-  return { email: email, role: role, canDelete: role === 'Admin', canToggle: role === 'Admin' || role === 'Editor' };
+  // Delete is reserved for SUPER_ADMIN_EMAIL only; Admin/Editor rows in the Admins tab can activate/deactivate
+  return { email: email, role: role, canDelete: email === SUPER_ADMIN_EMAIL.toLowerCase(), canToggle: role === 'Admin' || role === 'Editor' };
 }
 
 // Adds the Status header + Active/Inactive dropdown the first time it is needed
