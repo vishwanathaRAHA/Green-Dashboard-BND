@@ -111,7 +111,8 @@
                                     <option value="Inactive">Inactive</option>
                                 </select>
                             </div>
-                            <small class="text-muted" id="dashCounts"></small>
+                            <small class="text-muted d-block" id="dashCounts"></small>
+                            <small class="d-block mt-1" id="dashRole"></small>
                         </div>
                         <div id="dashboardList" class="mb-4">
                             <div class="text-center">
@@ -182,9 +183,10 @@
             `;
             
             google.script.run
-                .withSuccessHandler(function(dashboards) {
+                .withSuccessHandler(function(data) {
                     try {
-                        renderDashboards(dashboards);
+                        perms = (data && data.permissions) || perms;
+                        renderDashboards(data && data.dashboards);
                     } catch (e) {
                         console.error('Render error:', e);
                         listEl.innerHTML = `
@@ -204,10 +206,11 @@
                         </div>
                     `;
                 })
-                .getAllDashboards();
+                .getHomeData();
         }
         
         let allDashboards = [];
+        let perms = { email: '', role: 'None', canDelete: false, canToggle: false };
         let visibleCount = 50;
         const PAGE_STEP = 50;
 
@@ -250,6 +253,11 @@
                 return;
             }
 
+            const roleEl = document.getElementById('dashRole');
+            if (perms.role === 'Admin') roleEl.innerHTML = '<span class="text-success"><i class="fas fa-user-shield me-1"></i>' + escapeHtml(perms.email) + ' · Admin</span>';
+            else if (perms.role === 'Editor') roleEl.innerHTML = '<span class="text-primary"><i class="fas fa-user-edit me-1"></i>' + escapeHtml(perms.email) + ' · can activate / deactivate</span>';
+            else roleEl.innerHTML = '<span class="text-muted"><i class="fas fa-eye me-1"></i>View only' + (perms.email ? ' (' + escapeHtml(perms.email) + ')' : ' — sign in with your RAHA account to manage dashboards') + '</span>';
+
             const list = filteredDashboards();
             counts.textContent = list.length + ' shown · ' + activeCount + ' active · ' + (allDashboards.length - activeCount) + ' inactive';
 
@@ -281,15 +289,15 @@
                             </div>
                         </div>
                         <div class="ms-2 d-flex align-items-center flex-shrink-0">
-                            <div class="form-check form-switch status-switch" title="${isActive ? 'Deactivate' : 'Activate'} dashboard">
+                            ${perms.canToggle ? `<div class="form-check form-switch status-switch" title="${isActive ? 'Deactivate' : 'Activate'} dashboard">
                                 <input class="form-check-input" type="checkbox" role="switch" data-action="toggle" data-client="${attr(d.clientId)}" ${isActive ? 'checked' : ''}>
-                            </div>
+                            </div>` : ''}
                             <a href="${attr(d.shareUrl)}" target="_blank" class="btn btn-sm btn-outline-primary me-2">
                                 <i class="fas fa-external-link-alt"></i> Open
                             </a>
-                            <button data-action="delete" data-id="${attr(d.id)}" class="btn btn-sm btn-outline-danger">
+                            ${perms.canDelete ? `<button data-action="delete" data-id="${attr(d.id)}" class="btn btn-sm btn-outline-danger">
                                 <i class="fas fa-trash"></i>
-                            </button>
+                            </button>` : ''}
                         </div>
                     </div>
                 </div>`;

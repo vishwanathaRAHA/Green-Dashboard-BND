@@ -1290,7 +1290,7 @@ function getClientSheetId(clientId) {
       const sheetFile = DriveApp.getFilesByName(CLIENT_MAPPING_SHEET_NAME);
       if (sheetFile.hasNext()) {
         const file = sheetFile.next();
-        const sheet = SpreadsheetApp.openById(file.getId());
+        const sheet = SpreadsheetApp.openById(file.getId()).getSheets()[0];
         const data = sheet.getDataRange().getValues();
         for (let i = 1; i < data.length; i++) {
           if (data[i][0] === clientId) return data[i][2];
@@ -1390,7 +1390,7 @@ function getClientDetailsFromMapping(clientId) {
     const sheetFile = DriveApp.getFilesByName(CLIENT_MAPPING_SHEET_NAME);
     if (sheetFile.hasNext()) {
       const file = sheetFile.next();
-      const sheet = SpreadsheetApp.openById(file.getId());
+      const sheet = SpreadsheetApp.openById(file.getId()).getSheets()[0];
       const data = sheet.getDataRange().getValues();
       for (let i = 1; i < data.length; i++) {
         if (data[i][0] === clientId) return {
@@ -1408,7 +1408,7 @@ function removeClientFromMapping(clientId) {
     const sheetFile = DriveApp.getFilesByName(CLIENT_MAPPING_SHEET_NAME);
     if (sheetFile.hasNext()) {
       const file = sheetFile.next();
-      const sheet = SpreadsheetApp.openById(file.getId());
+      const sheet = SpreadsheetApp.openById(file.getId()).getSheets()[0];
       const data = sheet.getDataRange().getValues();
       for (let i = data.length - 1; i >= 1; i--) {
         if (data[i][0] === clientId) sheet.deleteRow(i + 1);
@@ -1425,10 +1425,61 @@ const SUPPORT_EMAIL = 'support@rahainsure.com';
 const STATUS_CACHE_KEY = 'client_status_map_v1';
 const STATUS_COL = 6;
 
-function getMappingSheet_() {
+function getMappingSpreadsheet_() {
   const files = DriveApp.getFilesByName(CLIENT_MAPPING_SHEET_NAME);
   if (!files.hasNext()) return null;
-  return SpreadsheetApp.openById(files.next().getId()).getSheets()[0];
+  return SpreadsheetApp.openById(files.next().getId());
+}
+
+function getMappingSheet_() {
+  const ss = getMappingSpreadsheet_();
+  return ss ? ss.getSheets()[0] : null;
+}
+
+// ============ HOME PAGE PERMISSIONS ============
+// Who may manage dashboards from the Home page is controlled by the "Admins" tab of the Client_Mapping sheet:
+//   Email | Role     Role "Admin"  = can delete AND activate/deactivate
+//                    Role "Editor" = can activate/deactivate only
+//   anyone not listed = view / open only
+// SUPER_ADMIN_EMAIL is always an Admin (cannot be locked out). Changing it requires editing this file.
+const SUPER_ADMIN_EMAIL = 'vishwanatha@rahainsure.com';
+const ADMINS_SHEET_NAME = 'Admins';
+
+function getAdminsSheet_(ss) {
+  let sh = ss.getSheetByName(ADMINS_SHEET_NAME);
+  if (sh) return sh;
+  sh = ss.insertSheet(ADMINS_SHEET_NAME);
+  sh.appendRow(['Email', 'Role (Admin = delete + status, Editor = status only)']);
+  sh.appendRow([SUPER_ADMIN_EMAIL, 'Admin']);
+  sh.getRange(2, 2, 200, 1).setDataValidation(
+    SpreadsheetApp.newDataValidation().requireValueInList(['Admin', 'Editor'], true).setAllowInvalid(false).build());
+  sh.setColumnWidth(1, 280); sh.setColumnWidth(2, 340);
+  return sh;
+}
+
+function getCurrentUserEmail_() {
+  try { return String(Session.getActiveUser().getEmail() || '').trim().toLowerCase(); } catch (e) { return ''; }
+}
+
+function getRoleForEmail_(ss, email) {
+  if (!email) return 'None';
+  if (email === SUPER_ADMIN_EMAIL.toLowerCase()) return 'Admin';
+  try {
+    const rows = getAdminsSheet_(ss).getDataRange().getValues();
+    for (let i = 1; i < rows.length; i++) {
+      if (String(rows[i][0] || '').trim().toLowerCase() === email) {
+        const role = String(rows[i][1] || '').trim().toLowerCase();
+        return role === 'admin' ? 'Admin' : (role === 'editor' ? 'Editor' : 'None');
+      }
+    }
+  } catch (error) { console.error('getRoleForEmail_ error:', error); }
+  return 'None';
+}
+
+function getPermissions_(ss) {
+  const email = getCurrentUserEmail_();
+  const role = ss ? getRoleForEmail_(ss, email) : (email === SUPER_ADMIN_EMAIL.toLowerCase() ? 'Admin' : 'None');
+  return { email: email, role: role, canDelete: role === 'Admin', canToggle: role === 'Admin' || role === 'Editor' };
 }
 
 // Adds the Status header + Active/Inactive dropdown the first time it is needed
@@ -1504,8 +1555,10 @@ function setClientStatus(clientId, status) {
     const normalized = String(status || '').trim().toLowerCase() === 'inactive' ? 'Inactive'
       : (String(status || '').trim().toLowerCase() === 'active' ? 'Active' : null);
     if (!normalized) return { success: false, error: 'Status must be Active or Inactive' };
-    const sheet = getMappingSheet_();
-    if (!sheet) return { success: false, error: 'Client mapping sheet not found' };
+    const ss = getMappingSpreadsheet_();
+    if (!ss) return { success: false, error: 'Client mapping sheet not found' };
+    if (!getPermissions_(ss).canToggle) return { success: false, error: 'You do not have permission to change dashboard status.' };
+    const sheet = ss.getSheets()[0];
     ensureStatusColumn_(sheet);
     const ids = sheet.getRange(1, 1, sheet.getLastRow(), 1).getValues();
     for (let i = 1; i < ids.length; i++) {
@@ -2050,45 +2103,53 @@ function getDashboardData(id) {
   return null;
 }
 
-function getAllDashboards() {
+// Builds the client list from ONE read of the mapping sheet. A client exists only if it is in the script
+// property (deleting from Home removes it there), so stale rows left in the sheet never reappear.
+function buildDashboards_(sheet) {
   const webappUrl = ScriptApp.getService().getUrl();
-  const dashboards = [];
-  const seen = {};
-  // One read of the mapping sheet (instead of one Drive search + sheet read per client)
-  try {
-    const sheet = getMappingSheet_();
-    if (sheet) {
-      ensureStatusColumn_(sheet);
-      readClientMappingRows_(sheet).forEach(r => {
-        if (seen[r.clientId]) return;
-        seen[r.clientId] = true;
-        dashboards.push({
-          id: 'gs_' + r.clientId, fileName: r.clientName || r.clientId, clientId: r.clientId,
-          clientName: r.clientName || r.clientId, sheetId: r.sheetId,
-          shareUrl: r.shareUrl || (webappUrl + '?clientId=' + r.clientId),
-          createdAt: r.createdAt || '', status: r.status, records: 0
-        });
-      });
-    }
-  } catch (error) { console.error('getAllDashboards mapping read error:', error); }
-  // Clients known only from the script property (not in the sheet) are still listed
+  let map = {};
   try {
     const mapping = PropertiesService.getScriptProperties().getProperty('client_mapping');
-    const map = mapping ? JSON.parse(mapping) : {};
-    Object.keys(map).forEach(clientId => {
-      if (seen[clientId]) return;
-      dashboards.push({
-        id: 'gs_' + clientId, fileName: clientId, clientId: clientId, clientName: clientId, sheetId: map[clientId],
-        shareUrl: webappUrl + '?clientId=' + clientId, createdAt: '', status: 'Active', records: 0
-      });
-    });
+    map = mapping ? JSON.parse(mapping) : {};
   } catch (error) {}
+  const rowsById = {};
+  try {
+    if (sheet) {
+      ensureStatusColumn_(sheet);
+      readClientMappingRows_(sheet).forEach(r => { if (!rowsById[r.clientId]) rowsById[r.clientId] = r; });
+    }
+  } catch (error) { console.error('buildDashboards_ read error:', error); }
+  const dashboards = Object.keys(map).map(clientId => {
+    const r = rowsById[clientId];
+    return {
+      id: 'gs_' + clientId, fileName: (r && r.clientName) || clientId, clientId: clientId,
+      clientName: (r && r.clientName) || clientId, sheetId: map[clientId],
+      shareUrl: (r && r.shareUrl) || (webappUrl + '?clientId=' + clientId),
+      createdAt: r ? r.createdAt : '', status: r ? r.status : 'Active', records: 0
+    };
+  });
   dashboards.sort((x, y) => String(y.createdAt).localeCompare(String(x.createdAt)));   // newest first
   return dashboards;
 }
 
+function getAllDashboards() {
+  return buildDashboards_(getMappingSheet_());
+}
+
+// Used by the Home page: client list + what the signed-in user is allowed to do, in one call
+function getHomeData() {
+  const ss = getMappingSpreadsheet_();
+  return {
+    dashboards: buildDashboards_(ss ? ss.getSheets()[0] : null),
+    permissions: getPermissions_(ss)
+  };
+}
+
 function deleteDashboard(id) {
   try {
+    if (!getPermissions_(getMappingSpreadsheet_()).canDelete) {
+      return { success: false, error: 'You do not have permission to delete dashboards.' };
+    }
     if (id.startsWith('gs_')) {
       const clientId = id.replace('gs_', '');
       const details = getClientDetailsFromMapping(clientId);
