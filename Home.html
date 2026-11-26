@@ -47,6 +47,14 @@
             font-size: 11px;
             color: #94a3b8;
         }
+        .dash-scroll { max-height: 60vh; overflow-y: auto; padding: 2px 6px 2px 2px; }
+        .dashboard-item.is-inactive { opacity: 0.7; background: #f8fafc; }
+        .dashboard-item.is-inactive .client-name { color: #64748b; }
+        .status-badge { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 10px; margin-left: 6px; vertical-align: middle; }
+        .status-badge.active { background: #d1fae5; color: #065f46; }
+        .status-badge.inactive { background: #fee2e2; color: #991b1b; }
+        .status-switch { margin: 0 10px 0 0; cursor: pointer; }
+        .dash-controls { display: none; }
     </style>
 </head>
 <body>
@@ -94,6 +102,17 @@
                         <p class="card-text text-muted mb-3">
                             Manage and access all your created dashboards.
                         </p>
+                        <div class="dash-controls mb-3" id="dashControls">
+                            <div class="d-flex gap-2 mb-2">
+                                <input type="search" id="dashSearch" class="form-control form-control-sm" placeholder="Search client name or ID...">
+                                <select id="dashFilter" class="form-select form-select-sm" style="max-width:130px;">
+                                    <option value="all">All</option>
+                                    <option value="Active">Active</option>
+                                    <option value="Inactive">Inactive</option>
+                                </select>
+                            </div>
+                            <small class="text-muted" id="dashCounts"></small>
+                        </div>
                         <div id="dashboardList" class="mb-4">
                             <div class="text-center">
                                 <div class="spinner-border text-primary" role="status">
@@ -188,15 +207,41 @@
                 .getAllDashboards();
         }
         
+        let allDashboards = [];
+        let visibleCount = 50;
+        const PAGE_STEP = 50;
+
+        function attr(s) {
+            return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;');
+        }
+
         function renderDashboards(dashboards) {
+            allDashboards = dashboards || [];
+            document.getElementById('totalDashboards').textContent = allDashboards.length;
+            document.getElementById('dashControls').style.display = allDashboards.length ? 'block' : 'none';
+            visibleCount = PAGE_STEP;
+            drawDashboards();
+        }
+
+        function filteredDashboards() {
+            const q = (document.getElementById('dashSearch').value || '').toLowerCase().trim();
+            const f = document.getElementById('dashFilter').value;
+            return allDashboards.filter(d => {
+                if (f !== 'all' && (d.status || 'Active') !== f) return false;
+                if (!q) return true;
+                return String(d.clientName || '').toLowerCase().includes(q) ||
+                       String(d.clientId || '').toLowerCase().includes(q);
+            });
+        }
+
+        function drawDashboards() {
             const listEl = document.getElementById('dashboardList');
-            const totalEl = document.getElementById('totalDashboards');
-            
-            if (!dashboards) dashboards = [];
-            
-            totalEl.textContent = dashboards.length;
-            
-            if (dashboards.length === 0) {
+            const prevScroll = listEl.querySelector('.dash-scroll') ? listEl.querySelector('.dash-scroll').scrollTop : 0;
+            const activeCount = allDashboards.filter(d => (d.status || 'Active') === 'Active').length;
+            const counts = document.getElementById('dashCounts');
+
+            if (allDashboards.length === 0) {
+                counts.textContent = '';
                 listEl.innerHTML = `
                     <div class="text-center py-4">
                         <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
@@ -204,60 +249,89 @@
                     </div>`;
                 return;
             }
-            
-            let html = '<div class="list-group">';
-            dashboards.slice(0, 5).forEach(d => {
-                const date = new Date(d.createdAt);
-                const formattedDate = date.toLocaleDateString('en-US', {
-                    month: 'short',
-                    day: 'numeric',
-                    year: 'numeric'
-                });
-                
-                // Use clientName if available, fallback to fileName, then clientId
+
+            const list = filteredDashboards();
+            counts.textContent = list.length + ' shown · ' + activeCount + ' active · ' + (allDashboards.length - activeCount) + ' inactive';
+
+            if (list.length === 0) {
+                listEl.innerHTML = '<div class="text-center py-3 text-muted">No clients match your search.</div>';
+                return;
+            }
+
+            let html = '<div class="dash-scroll"><div class="list-group">';
+            list.slice(0, visibleCount).forEach(d => {
+                const date = d.createdAt ? new Date(d.createdAt) : null;
+                const formattedDate = (date && !isNaN(date.getTime()))
+                    ? date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
                 const displayName = d.clientName || d.fileName || d.clientId || 'Dashboard';
-                const clientIdDisplay = d.clientId ? `(${d.clientId})` : '';
-                
+                const isActive = (d.status || 'Active') === 'Active';
                 html += `
-                <div class="list-group-item border-0 mb-2 shadow-sm dashboard-item">
+                <div class="list-group-item border-0 mb-2 shadow-sm dashboard-item ${isActive ? '' : 'is-inactive'}">
                     <div class="d-flex justify-content-between align-items-center">
-                        <div class="d-flex align-items-center flex-grow-1">
+                        <div class="d-flex align-items-center flex-grow-1" style="min-width:0;">
                             <i class="fas fa-chart-bar text-primary me-3"></i>
-                            <div class="flex-grow-1">
-                                <div class="client-name">${escapeHtml(displayName)}</div>
+                            <div class="flex-grow-1" style="min-width:0;">
+                                <div class="client-name text-truncate">${escapeHtml(displayName)}
+                                    <span class="status-badge ${isActive ? 'active' : 'inactive'}">${isActive ? 'Active' : 'Inactive'}</span>
+                                </div>
                                 <small class="text-muted">
-                                    <i class="far fa-calendar me-1"></i>${formattedDate}
-                                    <span class="client-id ms-2">${escapeHtml(clientIdDisplay)}</span>
+                                    ${formattedDate ? '<i class="far fa-calendar me-1"></i>' + formattedDate : ''}
+                                    <span class="client-id ms-2">(${escapeHtml(d.clientId || '')})</span>
                                 </small>
                             </div>
                         </div>
-                        <div class="ms-2">
-                            <a href="${d.shareUrl}" target="_blank" 
-                               class="btn btn-sm btn-outline-primary me-2">
+                        <div class="ms-2 d-flex align-items-center flex-shrink-0">
+                            <div class="form-check form-switch status-switch" title="${isActive ? 'Deactivate' : 'Activate'} dashboard">
+                                <input class="form-check-input" type="checkbox" role="switch" data-action="toggle" data-client="${attr(d.clientId)}" ${isActive ? 'checked' : ''}>
+                            </div>
+                            <a href="${attr(d.shareUrl)}" target="_blank" class="btn btn-sm btn-outline-primary me-2">
                                 <i class="fas fa-external-link-alt"></i> Open
                             </a>
-                            <button onclick="deleteDashboardHandler('${d.id}')" 
-                                    class="btn btn-sm btn-outline-danger">
+                            <button data-action="delete" data-id="${attr(d.id)}" class="btn btn-sm btn-outline-danger">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </div>
                     </div>
                 </div>`;
             });
-            
-            if (dashboards.length > 5) {
-                html += `
-                <div class="text-center mt-2">
-                    <small class="text-muted">
-                        +${dashboards.length - 5} more dashboards
-                    </small>
+            html += '</div>';
+            if (list.length > visibleCount) {
+                html += `<div class="text-center mt-2">
+                    <button class="btn btn-sm btn-outline-secondary" data-action="more">Show more (${list.length - visibleCount} remaining)</button>
                 </div>`;
             }
-            
             html += '</div>';
             listEl.innerHTML = html;
+            const sc = listEl.querySelector('.dash-scroll');
+            if (sc) sc.scrollTop = prevScroll;
         }
-        
+
+        function setStatus(clientId, checkbox) {
+            const newStatus = checkbox.checked ? 'Active' : 'Inactive';
+            const verb = checkbox.checked ? 'activate' : 'deactivate';
+            if (!checkbox.checked && !confirm('Deactivate this dashboard?\n\nViewers will see a "please contact RAHA team" message until you activate it again. No data is deleted.')) {
+                checkbox.checked = true;
+                return;
+            }
+            checkbox.disabled = true;
+            google.script.run
+                .withSuccessHandler(function(res) {
+                    if (res && res.success) {
+                        const d = allDashboards.find(x => x.clientId === clientId);
+                        if (d) d.status = res.status;
+                        drawDashboards();
+                    } else {
+                        checkbox.checked = !checkbox.checked; checkbox.disabled = false;
+                        alert('Could not ' + verb + ': ' + (res && res.error ? res.error : 'Unknown error'));
+                    }
+                })
+                .withFailureHandler(function(err) {
+                    checkbox.checked = !checkbox.checked; checkbox.disabled = false;
+                    alert('Could not ' + verb + ': ' + err.message);
+                })
+                .setClientStatus(clientId, newStatus);
+        }
+
         function escapeHtml(text) {
             if (!text) return '';
             const div = document.createElement('div');
@@ -300,6 +374,24 @@
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
             loadDashboards();
+
+            const listEl = document.getElementById('dashboardList');
+            listEl.addEventListener('click', function(e) {
+                const el = e.target.closest('[data-action]');
+                if (!el) return;
+                const action = el.getAttribute('data-action');
+                if (action === 'delete') deleteDashboardHandler(el.getAttribute('data-id'));
+                else if (action === 'more') { visibleCount += PAGE_STEP; drawDashboards(); }
+            });
+            listEl.addEventListener('change', function(e) {
+                if (e.target.matches('[data-action="toggle"]')) setStatus(e.target.getAttribute('data-client'), e.target);
+            });
+            let searchTimer;
+            document.getElementById('dashSearch').addEventListener('input', function() {
+                clearTimeout(searchTimer);
+                searchTimer = setTimeout(function() { visibleCount = PAGE_STEP; drawDashboards(); }, 150);
+            });
+            document.getElementById('dashFilter').addEventListener('change', function() { visibleCount = PAGE_STEP; drawDashboards(); });
             
             // Add click animation to cards
             const cards = document.querySelectorAll('.card');

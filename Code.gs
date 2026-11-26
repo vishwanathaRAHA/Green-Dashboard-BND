@@ -1225,6 +1225,7 @@ function submitMeetingRequest(payload) {
 
 function handleGoogleSheetDashboard(clientId) {
   console.log('Loading dashboard for client:', clientId);
+  if (isClientInactive_(clientId)) return inactiveDashboardPage_();
   try {
     const sheetId = getClientSheetId(clientId);
     if (!sheetId) {
@@ -1358,12 +1359,16 @@ function saveClientMapping(clientId, sheetId, clientName, shareUrl) {
           break;
         }
       }
-      if (!exists) dataSheet.appendRow([clientId, clientName || '', sheetId || '', shareUrl || '', new Date().toISOString()]);
+      if (!exists) {
+        ensureStatusColumn_(dataSheet);
+        dataSheet.appendRow([clientId, clientName || '', sheetId || '', shareUrl || '', new Date().toISOString(), 'Active']);
+      }
     } else {
       sheetFile = SpreadsheetApp.create(CLIENT_MAPPING_SHEET_NAME);
       const dataSheet = sheetFile.getActiveSheet();
-      dataSheet.appendRow(EXPECTED_HEADERS);
-      dataSheet.appendRow([clientId, clientName || '', sheetId || '', shareUrl || '', new Date().toISOString()]);
+      dataSheet.appendRow(EXPECTED_HEADERS.concat(['Status']));
+      dataSheet.appendRow([clientId, clientName || '', sheetId || '', shareUrl || '', new Date().toISOString(), 'Active']);
+      ensureStatusColumn_(dataSheet);
     }
     return true;
   } catch (error) {
@@ -1411,6 +1416,109 @@ function removeClientFromMapping(clientId) {
     }
     return true;
   } catch (error) { return false; }
+}
+
+// ============ CLIENT STATUS (Active / Inactive) ============
+// Status lives in column F ("Status") of the Client_Mapping sheet.
+// Blank or "Active" = dashboard visible. "Inactive" = dashboard shows a "contact RAHA" message.
+const SUPPORT_EMAIL = 'support@rahainsure.com';
+const STATUS_CACHE_KEY = 'client_status_map_v1';
+const STATUS_COL = 6;
+
+function getMappingSheet_() {
+  const files = DriveApp.getFilesByName(CLIENT_MAPPING_SHEET_NAME);
+  if (!files.hasNext()) return null;
+  return SpreadsheetApp.openById(files.next().getId()).getSheets()[0];
+}
+
+// Adds the Status header + Active/Inactive dropdown the first time it is needed
+function ensureStatusColumn_(sheet) {
+  if (sheet.getMaxColumns() < STATUS_COL) sheet.insertColumnsAfter(sheet.getMaxColumns(), STATUS_COL - sheet.getMaxColumns());
+  const header = String(sheet.getRange(1, STATUS_COL).getValue() || '').trim();
+  if (header === 'Status') return;
+  sheet.getRange(1, STATUS_COL).setValue('Status');
+  const rows = Math.max(sheet.getMaxRows() - 1, 1);
+  const rule = SpreadsheetApp.newDataValidation().requireValueInList(['Active', 'Inactive'], true).setAllowInvalid(false).build();
+  sheet.getRange(2, STATUS_COL, rows, 1).setDataValidation(rule);
+}
+
+// One read of the whole mapping sheet -> array of client rows
+function readClientMappingRows_(sheet) {
+  const values = sheet.getDataRange().getValues();
+  const rows = [];
+  for (let i = 1; i < values.length; i++) {
+    const r = values[i];
+    const clientId = String(r[0] || '').trim();
+    if (!clientId) continue;
+    let created = r[4];
+    if (created instanceof Date) created = created.toISOString();
+    rows.push({
+      clientId: clientId,
+      clientName: String(r[1] || ''),
+      sheetId: String(r[2] || ''),
+      shareUrl: String(r[3] || ''),
+      createdAt: created ? String(created) : '',
+      status: String(r[STATUS_COL - 1] || '').trim().toLowerCase() === 'inactive' ? 'Inactive' : 'Active'
+    });
+  }
+  return rows;
+}
+
+// clientId -> 'Active' | 'Inactive' (cached for 60 seconds so every dashboard view stays fast)
+function getClientStatusMap_() {
+  const cache = CacheService.getScriptCache();
+  try {
+    const cached = cache.get(STATUS_CACHE_KEY);
+    if (cached) return JSON.parse(cached);
+  } catch (e) {}
+  const map = {};
+  try {
+    const sheet = getMappingSheet_();
+    if (sheet) readClientMappingRows_(sheet).forEach(r => { map[r.clientId] = r.status; });
+    try { cache.put(STATUS_CACHE_KEY, JSON.stringify(map), 60); } catch (e) {}
+  } catch (error) {
+    console.error('getClientStatusMap_ error:', error);   // fail open: an unreadable sheet must not lock everyone out
+  }
+  return map;
+}
+
+function isClientInactive_(clientId) {
+  return getClientStatusMap_()[String(clientId).trim()] === 'Inactive';
+}
+
+function inactiveDashboardPage_() {
+  return HtmlService.createHtmlOutput(
+    '<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Dashboard Unavailable</title>' +
+    '<style>body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#e8f5e0,#c9e4c0);font-family:Arial,sans-serif;}' +
+    '.box{background:#fff;border-radius:24px;padding:40px 36px;max-width:460px;margin:20px;text-align:center;box-shadow:0 12px 40px rgba(60,120,60,.18);}' +
+    'h2{color:#1f3f2a;margin:12px 0 8px;}p{color:#4b5f4b;line-height:1.6;margin:8px 0;}a{color:#2d7a3a;font-weight:700;text-decoration:none;}</style></head>' +
+    '<body><div class="box"><div style="font-size:3rem">🌿</div><h2>Dashboard currently unavailable</h2>' +
+    '<p>This dashboard is not active at the moment.</p>' +
+    '<p>Please contact the RAHA team at <a href="mailto:' + SUPPORT_EMAIL + '">' + SUPPORT_EMAIL + '</a>.</p></div></body></html>'
+  ).setTitle('Dashboard Unavailable');
+}
+
+// Called from the Home page toggle
+function setClientStatus(clientId, status) {
+  try {
+    const normalized = String(status || '').trim().toLowerCase() === 'inactive' ? 'Inactive'
+      : (String(status || '').trim().toLowerCase() === 'active' ? 'Active' : null);
+    if (!normalized) return { success: false, error: 'Status must be Active or Inactive' };
+    const sheet = getMappingSheet_();
+    if (!sheet) return { success: false, error: 'Client mapping sheet not found' };
+    ensureStatusColumn_(sheet);
+    const ids = sheet.getRange(1, 1, sheet.getLastRow(), 1).getValues();
+    for (let i = 1; i < ids.length; i++) {
+      if (String(ids[i][0]).trim() === String(clientId).trim()) {
+        sheet.getRange(i + 1, STATUS_COL).setValue(normalized);
+        CacheService.getScriptCache().remove(STATUS_CACHE_KEY);
+        return { success: true, status: normalized };
+      }
+    }
+    return { success: false, error: 'Client not found in the mapping sheet' };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
 }
 
 // ============ SHEET READ ============
@@ -1943,20 +2051,39 @@ function getDashboardData(id) {
 }
 
 function getAllDashboards() {
-  const clients = getAllClients();
+  const webappUrl = ScriptApp.getService().getUrl();
   const dashboards = [];
-  clients.forEach(clientId => {
-    const details = getClientDetailsFromMapping(clientId);
-    const sheetId = details ? details.sheetId : getClientSheetId(clientId);
-    const webappUrl = ScriptApp.getService().getUrl();
-    const shareUrl = details && details.shareUrl ? details.shareUrl : `${webappUrl}?clientId=${clientId}`;
-    const clientName = details && details.clientName ? details.clientName : clientId;
-    dashboards.push({
-      id: 'gs_' + clientId, fileName: clientName, clientId: clientId,
-      clientName: clientName, sheetId: sheetId, shareUrl: shareUrl,
-      createdAt: details ? details.createdAt : new Date().toISOString(), records: 0
+  const seen = {};
+  // One read of the mapping sheet (instead of one Drive search + sheet read per client)
+  try {
+    const sheet = getMappingSheet_();
+    if (sheet) {
+      ensureStatusColumn_(sheet);
+      readClientMappingRows_(sheet).forEach(r => {
+        if (seen[r.clientId]) return;
+        seen[r.clientId] = true;
+        dashboards.push({
+          id: 'gs_' + r.clientId, fileName: r.clientName || r.clientId, clientId: r.clientId,
+          clientName: r.clientName || r.clientId, sheetId: r.sheetId,
+          shareUrl: r.shareUrl || (webappUrl + '?clientId=' + r.clientId),
+          createdAt: r.createdAt || '', status: r.status, records: 0
+        });
+      });
+    }
+  } catch (error) { console.error('getAllDashboards mapping read error:', error); }
+  // Clients known only from the script property (not in the sheet) are still listed
+  try {
+    const mapping = PropertiesService.getScriptProperties().getProperty('client_mapping');
+    const map = mapping ? JSON.parse(mapping) : {};
+    Object.keys(map).forEach(clientId => {
+      if (seen[clientId]) return;
+      dashboards.push({
+        id: 'gs_' + clientId, fileName: clientId, clientId: clientId, clientName: clientId, sheetId: map[clientId],
+        shareUrl: webappUrl + '?clientId=' + clientId, createdAt: '', status: 'Active', records: 0
+      });
     });
-  });
+  } catch (error) {}
+  dashboards.sort((x, y) => String(y.createdAt).localeCompare(String(x.createdAt)));   // newest first
   return dashboards;
 }
 
@@ -1975,6 +2102,7 @@ function deleteDashboard(id) {
         props.setProperty('client_mapping', JSON.stringify(map));
       }
       removeClientFromMapping(clientId);
+      try { CacheService.getScriptCache().remove(STATUS_CACHE_KEY); } catch (e) {}
 
       if (sheetId) {
         try {
@@ -1993,6 +2121,10 @@ function deleteDashboard(id) {
 function getDashboardDataApi(id) {
   if (id.startsWith('gs_')) {
     const clientId = id.replace('gs_', '');
+    if (isClientInactive_(clientId)) {
+      return ContentService.createTextOutput(JSON.stringify({ success: false, error: 'Dashboard unavailable. Please contact ' + SUPPORT_EMAIL }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
     const data = readGoogleSheetData(getClientSheetId(clientId), clientId);
     return ContentService.createTextOutput(JSON.stringify({
       success: true, data: data.data, columnMapping: data.columnMapping,
